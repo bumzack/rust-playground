@@ -85,7 +85,7 @@ fn main () {
             let mut count = 0i32;
 
             loop {
-                mystatus = ThreadStatus::Waiting(count + i*100);
+                mystatus = ThreadStatus::Waiting(i);
                 let res_send = tx.send(mystatus);
  
                 println!("THREAD LOOP        start sleeping for {:?} ms in thread {:?}", dur, i);
@@ -94,14 +94,14 @@ fn main () {
                 count += 1;
                 println!("in thread {:?}, count = {:?}", i, count);
 
-                //let new_data = rx2.recv().unwrap();
+                let new_data = rx2.recv().unwrap();
 
-                // let number = match new_data {
-                 //   ThreadStatus::Started(n) => { println!("in scoped thread - got  {:?} from main thread ", n); n}, 
-                //    ThreadStatus::Waiting(n) => { println!("in scoped thread - got  {:?} from main thread ", n); n}, 
-                 //   ThreadStatus::Finished(n) => { println!("in scoped thread - got  {:?} from main thread ", n); n},  
-                //  };
-                // println!("got number from main thread  :   {:?}", number);
+                let number = match new_data {
+                    ThreadStatus::Started(n) => { println!("SUB THREAD   in scoped thread - got  {:?} from main thread ", n); n}, 
+                    ThreadStatus::Waiting(n) => { println!("SUB THREAD  in scoped thread - got  {:?} from main thread ", n); n}, 
+                    ThreadStatus::Finished(n) => { println!("SUB THREAD  in scoped thread - got  {:?} from main thread ", n); n},  
+                };
+                println!("got number from main thread  :   {:?}", number);
   
                 if count > 6 {
                     mystatus = ThreadStatus::Finished(count + i*100);
@@ -130,7 +130,7 @@ fn main () {
         let threadstatus = rx.recv().unwrap();
         println!("'main thread' received {:?} from spawned thread", threadstatus);
  
-       let threadid = match threadstatus {
+       let threadid :i32 = match threadstatus {
             ThreadStatus::Started(n) => { println!("main thread:  started number:  {:?}", n); n},  
             ThreadStatus::Waiting(n) => {println!("main thread: waiting  number:  {:?}", n); n},  
             ThreadStatus::Finished(n) => { 
@@ -141,9 +141,14 @@ fn main () {
         };
         println!("thread id returned :   {:?}", threadid);
 
-       // let sendnumber  = ThreadStatus::Started(count);
-       // count += 1;
-        // let res_send = tx.send(sendnumber);
+        let sendnumber  = ThreadStatus::Started(count);
+        count += 1;
+
+        println!("MAIN THREAD - sending to sub thread :");
+        let bla = threadid as usize; 
+        println!("MAIN THREAD -  sending data to thread id :  {:?}", bla);
+        let res_send = &senderlist[bla];
+        res_send.send(sendnumber);
 
         // assert!(0 <= j && j < 11);
         if (count_threads_running == 0) {
