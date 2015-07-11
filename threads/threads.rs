@@ -52,9 +52,15 @@ fn main () {
  
         thread::spawn(move|| {
 
-            let mystatus = ThreadStatus::Started(i);
+            let mut mystatus = ThreadStatus::Started(i);
+            if (i > 3) {
+                mystatus = ThreadStatus::Waiting(i);
+            }
+            if (i > 6) {
+                mystatus = ThreadStatus::Finished(i);
+            }
 
-            let dur :u32 = (i as u32)* 800 + 1500;    
+            let dur :u32 = ((9-i) as u32)* 300 + 4500;    
             println!("pause duration  {:?} ms for thread  {:?} ", dur, i);
 
             println!("start sleeping for {:?} ms in thread {:?}", dur, i);
@@ -76,8 +82,8 @@ fn main () {
     //   }  
 
     for _ in 0..10 {
-        let threadstatus = rx.recv();
-        //println!("'main thread' received {:?} from spawned thread", j);
+        let threadstatus = rx.recv().unwrap();
+        println!("'main thread' received {:?} from spawned thread", threadstatus);
 
         //let threadid = match threadstatus {
         //    ThreadStatus::Started(n) => println!(f, "received Status 'Started' from thread {:?}", n),
@@ -85,6 +91,11 @@ fn main () {
         //    ThreadStatus::Finished(n) => println!(f, "received Status 'Finished' from thread {:?}", n)
        // }
 
+       match threadstatus {
+            ThreadStatus::Started(n) => println!("BLA BLA:   thread started:  {:?}", n),  
+            ThreadStatus::Waiting(n) => println!("BLA BLA:   thread Waiting:  {:?}", n),  
+            ThreadStatus::Finished(n) => println!("BLA BLA:   thread Finished:  {:?}", n),  
+        }
 
         // assert!(0 <= j && j < 11);
     }    
