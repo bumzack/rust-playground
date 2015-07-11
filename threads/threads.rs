@@ -2,6 +2,12 @@ use std::thread;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::{Sender, Receiver};
 
+enum ThreadStatus {
+    Started (i32),
+    Waiting (i32),
+    Finished (i32),
+}
+
 
 fn main () {
     // Create a shared channel that can be sent along from many threads
@@ -11,7 +17,7 @@ fn main () {
  
 
     let mut senderlist: Vec<Sender<i32>> = vec![];
-    
+    // let mut allthreadstatus: Vec<ThreadStatus> = vec![]; 
 
     for i in 0..10 {
         let tx = tx.clone();
@@ -19,8 +25,13 @@ fn main () {
         let (tx2, rx2): (Sender<i32>, Receiver<i32>) = channel();
         senderlist.push(tx2);
 
+        let mystatus = ThreadStatus::Started(i);
+
+        // allthreadstatus.push(threadstatus);
+ 
         thread::spawn(move|| {
-            let dur = i * 800 + 1500;    
+
+            let dur :u32 = (i as u32)* 800 + 1500;    
             println!("pause duration  {:?} ms for thread  {:?} ", dur, i);
 
             println!("start sleeping for {:?} ms in thread {:?}", dur, i);
@@ -29,8 +40,7 @@ fn main () {
 
             tx.send(i+1).unwrap();
             println!("in thread {:?}", rx2.recv().unwrap());
-            
-        });
+         });
     }
 
     for k in 0..10 {
@@ -47,3 +57,6 @@ fn main () {
         assert!(0 <= j && j < 11);
     }    
 }
+
+
+
