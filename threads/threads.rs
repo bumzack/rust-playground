@@ -3,11 +3,10 @@ use std::sync::mpsc::channel;
 use std::sync::mpsc::{Sender, Receiver};
 
 use std::fmt;
-use std::fmt::Display;
+ use std::fmt::{ Debug, Display, Error, Formatter };
 
 
 
-#[derive(Debug)]
 enum ThreadStatus {
     Started (i32),
     Waiting (i32),
@@ -15,23 +14,34 @@ enum ThreadStatus {
 }
 
 
- 
 impl Display for ThreadStatus {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match self {
-            &ThreadStatus::Started(n) => write!(f, "thread started:"),
-            &ThreadStatus::Waiting(n) => write!(f, "thread waiting: ")
-            &ThreadStatus::Finished(n) => write!(f, "thread finished:")
-        };
+            &ThreadStatus::Started(n) => write!(f, "Display:   thread started:  {:?}", n),
+            &ThreadStatus::Waiting(n) => write!(f, "Display:  thread waiting:   {:?}",n ),
+            &ThreadStatus::Finished(n) => write!(f, "Display:  thread finished:  {:?}", n), 
+        }
     }
 }
+
+impl Debug for ThreadStatus {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        match self {
+            &ThreadStatus::Started(n) => write!(f, "Debug: thread started:  {:?}", n),
+            &ThreadStatus::Waiting(n) => write!(f, "Debug: thread waiting:   {:?}",n ),
+            &ThreadStatus::Finished(n) => write!(f, "Debug: thread finished:  {:?}", n), 
+        }
+    }
+}
+
 
 fn main () {
     // Create a shared channel that can be sent along from many threads
     // where tx is the sending half (tx for transmission), and rx is the receiving
     // half (rx for receiving).
-    let (tx, rx) = channel();
- 
+    // let (tx, rx) = channel();
+    let (tx, rx): (Sender<ThreadStatus>, Receiver<ThreadStatus>) = channel();
+
 
     let mut senderlist: Vec<Sender<ThreadStatus>> = vec![];
     // let mut allthreadstatus: Vec<ThreadStatus> = vec![]; 
@@ -46,7 +56,7 @@ fn main () {
  
         thread::spawn(move|| {
 
-            let mystatus = ThreadStatus::Started(i);
+            let mystatus = ThreadStatus::Started;
 
             let dur :u32 = (i as u32)* 800 + 1500;    
             println!("pause duration  {:?} ms for thread  {:?} ", dur, i);
@@ -55,23 +65,25 @@ fn main () {
             thread::sleep_ms(dur);
             println!("finished sleeping for {:?} ms in thread {:?}", dur, i);
 
-            tx.send(i+1).unwrap();
-            println!("in thread {:?}", rx2.recv().unwrap());
+            println!("in thread {:?}, sending status", i );
+            tx.send(mystatus);
+
+            //  println!("in thread {:?}", rx2.recv().unwrap());
          });
     }
 
-    for k in 0..10 {
-        let mut z = k as i32;
-        z = z + 100;  
-        println!("sending z = {:?} from main thread to 'spawned' thread, k = {:?}", z, k);
-        senderlist[k].send(z).unwrap();
-    }  
+    //for k in 0..10 {
+     //   let mut z = k as i32;
+    //    z = z + 100;  
+     //   println!("sending z = {:?} from main thread to 'spawned' thread, k = {:?}", z, k);
+    //    senderlist[k].send(z).unwrap();
+    //   }  
 
     for _ in 0..10 {
-        let j = rx.recv().unwrap();
+        let j = rx.recv();
         println!("'main thread' received {:?} from spawned thread", j);
 
-        assert!(0 <= j && j < 11);
+        // assert!(0 <= j && j < 11);
     }    
 }
 
