@@ -1,24 +1,22 @@
 use std::thread;
-use std::sync::{Arc, Mutex};
+use std::sync::mpsc;
 
 fn main() {
-    let numbers = Arc::new(Mutex::new(vec![1, 2, 3,4,5,6,7,8,9,10,11,12]));
+    let (tx, rx) = mpsc::channel();
 
-    let mut threads = vec![];
-    for i in 0..12 {
-        let number = numbers.clone();
 
-        let cur = thread::spawn(move|| {
-            let mut array = number.lock().unwrap();
+    let mut imgdata =  [0u8; 40];
 
-            array[i] += 1;
 
-            println!("numbers[{}] is {}", i, array[i]);
+    for _ in 0..10 {
+        let tx = tx.clone();
+
+        thread::spawn(move || {
+            let answer = 42u32;
+
+            tx.send(answer);
         });
-        threads.push(cur);
     }
 
-    for i in threads {
-        let _ = i.join();
-    }
+   rx.recv().ok().expect("Could not receive answer");
 }
