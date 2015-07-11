@@ -1,9 +1,11 @@
+#![feature(scoped)]
+
 use std::thread;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::{Sender, Receiver};
 
 use std::fmt;
- use std::fmt::{ Debug, Display, Error, Formatter };
+use std::fmt::{ Debug, Display, Error, Formatter };
 
 
 
@@ -50,25 +52,36 @@ fn main () {
  
         // allthreadstatus.push(threadstatus);
  
-        thread::spawn(move|| {
+        thread::scoped(move|| {
 
             let mut mystatus = ThreadStatus::Started(i);
-            if (i > 3) {
-                mystatus = ThreadStatus::Waiting(i);
-            }
+             
             if (i > 6) {
                 mystatus = ThreadStatus::Finished(i);
             }
 
-            let dur :u32 = ((9-i) as u32)* 300 + 4500;    
-            println!("pause duration  {:?} ms for thread  {:?} ", dur, i);
+            // let dur :u32 = ((9-i) as u32)* 300 + 4500;    
+            let dur :u32 = 1500;    
+
+             println!("pause duration  {:?} ms for thread  {:?} ", dur, i);
 
             println!("start sleeping for {:?} ms in thread {:?}", dur, i);
             thread::sleep_ms(dur);
             println!("finished sleeping for {:?} ms in thread {:?}", dur, i);
 
             println!("in thread {:?}, sending status", i );
-            tx.send(mystatus);
+            let res_send = tx.send(mystatus);
+
+            // let mut count = 0u32;
+
+            //loop {
+            //    mystatus = ThreadStatus::Waiting(i);
+            //    let res_send = tx.send(mystatus);
+             //   thread::sleep_ms(dur);
+
+            //    count += 1;
+            //    println!("in thread {:?}, count = {:?}", i, count);
+            //}
 
             //  println!("in thread {:?}", rx2.recv().unwrap());
          });
@@ -91,11 +104,12 @@ fn main () {
         //    ThreadStatus::Finished(n) => println!(f, "received Status 'Finished' from thread {:?}", n)
        // }
 
-       match threadstatus {
-            ThreadStatus::Started(n) => println!("BLA BLA:   thread started:  {:?}", n),  
-            ThreadStatus::Waiting(n) => println!("BLA BLA:   thread Waiting:  {:?}", n),  
-            ThreadStatus::Finished(n) => println!("BLA BLA:   thread Finished:  {:?}", n),  
-        }
+       let threadid = match threadstatus {
+            ThreadStatus::Started(n) => { println!("BLA BLA:   thread started:  {:?}", n); n},  
+            ThreadStatus::Waiting(n) => {println!("BLA BLA:   thread Waiting:  {:?}", n); n},  
+            ThreadStatus::Finished(n) => {println!("BLA BLA:   thread Finished:  {:?}", n); n},  
+        };
+        println!("thread id returned :   {:?}", threadid);
 
         // assert!(0 <= j && j < 11);
     }    
