@@ -33,6 +33,10 @@ impl Debug for ThreadStatus {
 }
 
 
+static NCORES: i32 = 4;
+
+
+
 fn main () {
     // Create a shared channel that can be sent along from many threads
     // where tx is the sending half (tx for transmission), and rx is the receiving
@@ -44,7 +48,10 @@ fn main () {
     let mut senderlist: Vec<Sender<ThreadStatus>> = vec![];
     // let mut allthreadstatus: Vec<ThreadStatus> = vec![]; 
 
-    for i in 0..10 {
+
+    let mut handles = Vec::new();
+
+    for i in 0..NCORES {
         let tx = tx.clone();
  
         let (tx2, rx2): (Sender<ThreadStatus>, Receiver<ThreadStatus>) = channel();
@@ -52,7 +59,7 @@ fn main () {
  
         // allthreadstatus.push(threadstatus);
  
-        thread::scoped(move|| {
+        let worker = thread::scoped(move|| {
 
             let mut mystatus = ThreadStatus::Started(i);
              
@@ -72,48 +79,62 @@ fn main () {
             println!("in thread {:?}, sending status", i );
             let res_send = tx.send(mystatus);
 
-            // let mut count = 0u32;
+            let mut count = 0i32;
 
-            //loop {
-            //    mystatus = ThreadStatus::Waiting(i);
-            //    let res_send = tx.send(mystatus);
-             //   thread::sleep_ms(dur);
+            loop {
+                mystatus = ThreadStatus::Waiting(count + i*100);
+                let res_send = tx.send(mystatus);
+ 
+                println!("THREAD LOOP        start sleeping for {:?} ms in thread {:?}", dur, i);
+                thread::sleep_ms(dur);
+                println!("THREAD LOOP      finished sleeping for {:?} ms in thread {:?}", dur, i);
+                count += 1;
+                println!("in thread {:?}, count = {:?}", i, count);
 
-            //    count += 1;
-            //    println!("in thread {:?}, count = {:?}", i, count);
-            //}
+                //let new_data = rx2.recv().unwrap();
+
+                // let number = match new_data {
+                 //   ThreadStatus::Started(n) => { println!("in scoped thread - got  {:?} from main thread ", n); n}, 
+                //    ThreadStatus::Waiting(n) => { println!("in scoped thread - got  {:?} from main thread ", n); n}, 
+                 //   ThreadStatus::Finished(n) => { println!("in scoped thread - got  {:?} from main thread ", n); n},  
+                //  };
+                // println!("got number from main thread  :   {:?}", number);
+  
+                if count > 6 {
+                    return;
+                } 
+            }
 
             //  println!("in thread {:?}", rx2.recv().unwrap());
          });
+
+         handles.push(worker);
     }
 
-    //for k in 0..10 {
+    //for k in 0..NCORES {
      //   let mut z = k as i32;
     //    z = z + 100;  
      //   println!("sending z = {:?} from main thread to 'spawned' thread, k = {:?}", z, k);
     //    senderlist[k].send(z).unwrap();
     //   }  
 
-    for _ in 0..10 {
+    let mut count = 10000; 
+    loop 
+     {
         let threadstatus = rx.recv().unwrap();
         println!("'main thread' received {:?} from spawned thread", threadstatus);
-
-        //let threadid = match threadstatus {
-        //    ThreadStatus::Started(n) => println!(f, "received Status 'Started' from thread {:?}", n),
-        //    ThreadStatus::Waiting(n) => println!(f, "received Status 'Waiting' from thread {:?}", n)
-        //    ThreadStatus::Finished(n) => println!(f, "received Status 'Finished' from thread {:?}", n)
-       // }
-
+ 
        let threadid = match threadstatus {
-            ThreadStatus::Started(n) => { println!("BLA BLA:   thread started:  {:?}", n); n},  
-            ThreadStatus::Waiting(n) => {println!("BLA BLA:   thread Waiting:  {:?}", n); n},  
-            ThreadStatus::Finished(n) => {println!("BLA BLA:   thread Finished:  {:?}", n); n},  
+            ThreadStatus::Started(n) => { println!("main thread:  started number:  {:?}", n); n},  
+            ThreadStatus::Waiting(n) => {println!("main thread: waiting  number:  {:?}", n); n},  
+            ThreadStatus::Finished(n) => {println!("main thread: finished  number:   {:?}", n); n},  
         };
         println!("thread id returned :   {:?}", threadid);
+
+       // let sendnumber  = ThreadStatus::Started(count);
+       // count += 1;
+        // let res_send = tx.send(sendnumber);
 
         // assert!(0 <= j && j < 11);
     }    
 }
-
-
-
