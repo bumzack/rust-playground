@@ -26,11 +26,7 @@ impl Display for ThreadStatus {
 
 impl Debug for ThreadStatus {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        match self {
-            &ThreadStatus::Started(n) => write!(f, "Debug: thread started:  {:?}", n),
-            &ThreadStatus::Waiting(n) => write!(f, "Debug: thread waiting:   {:?}",n ),
-            &ThreadStatus::Finished(n) => write!(f, "Debug: thread finished:  {:?}", n), 
-        }
+        fmt::Display::fmt(self, f)
     }
 }
 
@@ -56,7 +52,7 @@ fn main () {
  
         thread::spawn(move|| {
 
-            let mystatus = ThreadStatus::Started;
+            let mystatus = ThreadStatus::Started(i);
 
             let dur :u32 = (i as u32)* 800 + 1500;    
             println!("pause duration  {:?} ms for thread  {:?} ", dur, i);
@@ -80,8 +76,15 @@ fn main () {
     //   }  
 
     for _ in 0..10 {
-        let j = rx.recv();
-        println!("'main thread' received {:?} from spawned thread", j);
+        let threadstatus = rx.recv();
+        //println!("'main thread' received {:?} from spawned thread", j);
+
+        //let threadid = match threadstatus {
+        //    ThreadStatus::Started(n) => println!(f, "received Status 'Started' from thread {:?}", n),
+        //    ThreadStatus::Waiting(n) => println!(f, "received Status 'Waiting' from thread {:?}", n)
+        //    ThreadStatus::Finished(n) => println!(f, "received Status 'Finished' from thread {:?}", n)
+       // }
+
 
         // assert!(0 <= j && j < 11);
     }    
