@@ -1,22 +1,21 @@
 use std::thread;
-use std::sync::mpsc;
-
-fn main() {
-    let (tx, rx) = mpsc::channel();
+use std::sync::mpsc::channel;
 
 
-    let mut imgdata =  [0u8; 40];
-
-
-    for _ in 0..10 {
+fn main () {
+    // Create a shared channel that can be sent along from many threads
+    // where tx is the sending half (tx for transmission), and rx is the receiving
+    // half (rx for receiving).
+    let (tx, rx) = channel();
+    for i in 0..10 {
         let tx = tx.clone();
-
-        thread::spawn(move || {
-            let answer = 42u32;
-
-            tx.send(answer);
+        thread::spawn(move|| {
+            tx.send(i+1).unwrap();
         });
     }
 
-   rx.recv().ok().expect("Could not receive answer");
+    for _ in 0..10 {
+        let j = rx.recv().unwrap();
+        assert!(0 <= j && j < 11);
+    }    
 }
