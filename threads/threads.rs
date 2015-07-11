@@ -51,6 +51,9 @@ fn main () {
 
     let mut handles = Vec::new();
 
+
+    let mut count_threads_running = 0; 
+
     for i in 0..NCORES {
         let tx = tx.clone();
  
@@ -64,7 +67,7 @@ fn main () {
             let mut mystatus = ThreadStatus::Started(i);
              
             if (i > 6) {
-                mystatus = ThreadStatus::Finished(i);
+                mystatus = ThreadStatus::Waiting(i);
             }
 
             // let dur :u32 = ((9-i) as u32)* 300 + 4500;    
@@ -101,6 +104,8 @@ fn main () {
                 // println!("got number from main thread  :   {:?}", number);
   
                 if count > 6 {
+                    mystatus = ThreadStatus::Finished(count + i*100);
+                    let res_send = tx.send(mystatus);
                     return;
                 } 
             }
@@ -109,6 +114,7 @@ fn main () {
          });
 
          handles.push(worker);
+         count_threads_running += 1;
     }
 
     //for k in 0..NCORES {
@@ -127,7 +133,11 @@ fn main () {
        let threadid = match threadstatus {
             ThreadStatus::Started(n) => { println!("main thread:  started number:  {:?}", n); n},  
             ThreadStatus::Waiting(n) => {println!("main thread: waiting  number:  {:?}", n); n},  
-            ThreadStatus::Finished(n) => {println!("main thread: finished  number:   {:?}", n); n},  
+            ThreadStatus::Finished(n) => { 
+                                            println!("main thread: finished  number:   {:?}", n); 
+                                            count_threads_running -= 1; 
+                                            n
+                                          },  
         };
         println!("thread id returned :   {:?}", threadid);
 
@@ -136,5 +146,8 @@ fn main () {
         // let res_send = tx.send(sendnumber);
 
         // assert!(0 <= j && j < 11);
+        if (count_threads_running == 0) {
+            break; 
+        }
     }    
 }
