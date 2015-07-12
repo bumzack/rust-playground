@@ -21,9 +21,8 @@ impl Display for ThreadStatus {
         match self {
             &ThreadStatus::Start(n) => write!(f, "thread Start:  id = {:?}", n),
             &ThreadStatus::Waiting(n) => write!(f, "thread waiting:  id =  {:?}",n ),
-            &ThreadStatus::Finished(n) => write!(f, "thread finished:  id = {:?}", n), 
             &ThreadStatus::Finished(n) => write!(f, "thread finished:  id = {:?}", n),
-            &ThreadStatus::Stopp(n) => write!(f, "thread stopp:  id = {:?}", n), 
+            &ThreadStatus::Stopp(n) => write!(f, "thread stopp:  id = {:?}", n),
         }
     }
 }
@@ -33,6 +32,16 @@ impl Debug for ThreadStatus {
         fmt::Display::fmt(self, f)
     }
 }
+
+
+fn do_some_work() {
+  let dur :u32 = 1500;
+
+  println!("start sleeping for {:?} ms in thread {:?}", dur, threadid);
+  thread::sleep_ms(dur);
+  println!("finished sleeping for {:?} ms in thread {:?}", dur, threadid);
+}
+
 
 
 static NCORES: i32 = 3;
@@ -48,56 +57,32 @@ fn main () {
 
 
     let mut senderlist: Vec<Sender<ThreadStatus>> = vec![];
-    // let mut allthreadstatus: Vec<ThreadStatus> = vec![]; 
+    // let mut allthreadstatus: Vec<ThreadStatus> = vec![];
 
 
     let mut handles = Vec::new();
 
 
-    let mut count_threads_running = 0; 
+    let mut count_threads_running = 0;
 
     for i in 0..NCORES {
         let tx = tx.clone();
- 
+
         let (tx2, rx2): (Sender<ThreadStatus>, Receiver<ThreadStatus>) = channel();
         senderlist.push(tx2);
- 
+
         // allthreadstatus.push(threadstatus);
- 
+
         let worker = thread::scoped(move|| {
 
-            let threadid = i; 
-
-            let mut mystatus = ThreadStatus::Start(i);
-             
-            if (threadid > 6) {
-                mystatus = ThreadStatus::Waiting(i);
-            }
-
-            // let dur :u32 = ((9-threadid) as u32)* 300 + 4500;    
-            let dur :u32 = 1500;    
-
-             println!("pause duration  {:?} ms for thread  {:?} ", dur, threadid);
-
-            println!("start sleeping for {:?} ms in thread {:?}", dur, threadid);
-            thread::sleep_ms(dur);
-            println!("finished sleeping for {:?} ms in thread {:?}", dur, threadid);
-
-            println!("in thread {:?}, sending status", threadid);
-            let res_send = tx.send(mystatus);
-
-            let mut count = 0i32;
+            let threadid = i;
 
             loop {
                  // do some work (wait ...)
- 
-                println!("THREAD LOOP        start sleeping for {:?} ms in thread {:?}", dur, i);
-                thread::sleep_ms(dur);
-                println!("THREAD LOOP      finished sleeping for {:?} ms in thread {:?}", dur, i);
-                count += 1;
-                println!("in thread {:?}, count = {:?}", i, count);
 
-                // tell the main thread -> i'm done and waiting for new things to do 
+                do_some_work();
+
+                // tell the main thread -> i'm done and waiting for new things to do
                 mystatus = ThreadStatus::Waiting(threadid);
                 let res_send = tx.send(mystatus);
 
@@ -108,64 +93,52 @@ fn main () {
                 let new_data = rx2.recv().unwrap();
 
                 let number = match new_data {
-                    ThreadStatus::Start(n) => { 
-                                                    println!("SUB THREAD in scoped thread - main thread tells me to start;  {:?} from main thread ", n); 
+                    ThreadStatus::Start(n) => {
+                                                    println!("SUB THREAD in scoped thread - main thread tells me to start;  {:?} from main thread ", n);
                                                     n
-                                                }, 
-                    ThreadStatus::Stopp(n) => { 
-                                                    println!("SUB THREAD in scoped thread - main thread tells me to stopp;  {:?} from main thread "); 
+                                              },
+                    ThreadStatus::Stopp(n) => {
+                                                    println!("SUB THREAD in scoped thread - main thread tells me to stopp;  {:?} from main thread ");
                                                     mystatus = ThreadStatus::Finished(threadid);
                                                     let res_send = tx.send(mystatus);
                                                     return;
-                                            }, 
-                    _ => panic!("WHOA - something went terrible wrong. never ever send something different than 'stop' oder 'start' to a thread"),  
+                                            },
+                    _ => panic!("WHOA - something went terrible wrong. never ever send something different than 'stop' oder 'start' to a thread"),
                 };
-                println!("got number from main thread  :   {:?}", number); 
             }
-
-            //  println!("in thread {:?}", rx2.recv().unwrap());
          });
 
          handles.push(worker);
          count_threads_running += 1;
     }
 
-    //for k in 0..NCORES {
-     //   let mut z = k as i32;
-    //    z = z + 100;  
-     //   println!("sending z = {:?} from main thread to 'spawned' thread, k = {:?}", z, k);
-    //    senderlist[k].send(z).unwrap();
-    //   }  
-
-    let mut count = 10000; 
-    loop 
+    let mut count = 10000;
+    loop
      {
         let threadstatus = rx.recv().unwrap();
-        println!("'MAIN THREAD' received {:?} from spawned thread", threadstatus);
- 
-       let threadid :i32 = match threadstatus {
-            ThreadStatus::Start(n) => { println!("'MAIN THREAD':  Start number:  {:?}", n); n},  
-            ThreadStatus::Waiting(n) => {println!("'MAIN THREAD': waiting  number:  {:?}", n); n},  
-            ThreadStatus::Finished(n) => { 
-                                            println!("'MAIN THREAD': finished  number:   {:?}", n); 
-                                            count_threads_running -= 1; 
+        let threadid :i32 = match threadstatus {
+            ThreadStatus::Finished(n) => {
+                                            println!("'MAIN THREAD': finished  number:   {:?}", n);
+                                            count_threads_running -= 1;
                                             n
-                                          },  
+                                          },
+            ThreadStatus::Waiting(n) => {println!("'MAIN THREAD': waiting  number:  {:?}", n); n},            _ => panic!("WHOA - something went terrible wrong. a wokrer thread should only send a 'Finished' or 'Waiting' message, nothing else "),
         };
         println!("'MAIN THREAD'   worker thread with id returned :   {:?}", threadid);
+
 
         let sendnumber  = ThreadStatus::Start(count);
         count += 1;
 
-        let bla = threadid as usize; 
+        let bla = threadid as usize;
         println!("MAIN THREAD -  sending data to thread id :  {:?}", bla);
+
         let res_send = &senderlist[bla];
         res_send.send(sendnumber);
 
         if (count_threads_running == 0) {
-            break; 
+            break;
         }
-    }    
+    }
     println!("'MAIN THREAD' finished 'loop'");
-
 }
