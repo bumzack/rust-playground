@@ -80,7 +80,12 @@ fn main () {
 
                 // tell the main thread -> i'm done and waiting for new things to do
                 mystatus = ThreadStatus::Waiting(threadid);
-                let res_send = tx.send(mystatus);
+                let result_send = tx.send(mystatus);
+
+                match result_send {
+                    Ok(..) =>  println!("SUB THREAD in scoped thread - 'send' is ok"),
+                    Err(..) => panic!("WHOA - something went terrible wrong. could not execute 'send' to main thread"),
+                };
 
                 // wait for the response of the main thread -> there are only 2 valid responses
                 //  1) gimme some new work to do    ("Start")
@@ -91,16 +96,22 @@ fn main () {
                 let number = match new_data {
                     ThreadStatus::Start(n) => {
                                                     println!("SUB THREAD in scoped thread - main thread tells me to start;  {:?} from main thread ", n);
+                                                    mystatus = ThreadStatus::Start(threadid);
                                                     n
                                               },
                     ThreadStatus::Stopp(n) => {
                                                     println!("SUB THREAD in scoped thread - main thread tells me to stopp;  {:?} from main thread ", n);
                                                     mystatus = ThreadStatus::Finished(threadid);
-                                                    let res_send = tx.send(mystatus);
+                                                    let result_send = tx.send(mystatus);
+                                                    match result_send {
+                                                        Ok(..) =>  println!("SUB THREAD in scoped thread - 'send' is ok"),
+                                                        Err(..) => panic!("WHOA - something went terrible wrong. could not execute 'send' to main thread"),
+                                                    };
                                                     return;
                                             },
                     _ => panic!("WHOA - something went terrible wrong. never ever send something different than 'stop' oder 'start' to a thread"),
                 };
+                println!("SUB THREAD in scoped thread - received number {:?} from main thread ", number);
             }
          });
 
@@ -136,10 +147,17 @@ fn main () {
         let bla = threadid as usize;
         println!("MAIN THREAD -  sending data to thread id :  {:?}", bla);
 
-        let res_send = &senderlist[bla];
-        res_send.send(sendmsg);
+        let sender = &senderlist[bla];
+        let result_send = sender.send(sendmsg);
 
-        if (count_threads_running == 0) {
+        match result_send {
+            Ok(..) =>  println!("MAIN THREAD in scoped thread - 'send' is ok"),
+            Err(..) => panic!("WHOA - something went terrible wrong. could not execute 'send' to sub  thread"),
+        };
+
+
+
+        if count_threads_running == 0 {
             break;
         }
     }
