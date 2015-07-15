@@ -81,7 +81,6 @@ struct ImageOperationSharpenColor<'a>  {
     description: &'static str,
 }
 
-
 trait ImageOperation {
     fn before_execute_op(&self) -> Vec<ImageOperationInput>;
     fn execute_op(&self, Vec<ImageOperationInput>) -> Vec<ImageOperationOutput>;
