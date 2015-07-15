@@ -12,20 +12,39 @@ impl PixelImageSimple {
             height: 0,
         }
     }
-    fn set_width(&mut self, width: i32) {
+
+    fn set_width(&mut self, width: i32) ->  &mut PixelImageSimple {
         self.width  = width;
+        self
     }
 
-    fn get_width(&mut self) ->i32 {
+    fn get_width(&mut self) -> i32 {
         self.width
     }
 
-    fn set_height(&mut self, height: i32) {
+    fn set_height(&mut self, height: i32) ->  &mut PixelImageSimple {
         self.height  = height;
+        self
     }
 
     fn get_height(&mut self) ->i32 {
         self.height
+    }
+
+    fn set_pixel(&mut self, x: i32, y: i32, value: i32)  {
+        let idx:   usize  = (y*self.width + x) as usize ;
+        if (x < self.width) && (y < self.height) {
+            self.pixels[idx] = value;
+        }
+    }
+
+    fn get_pixel(&mut self, x: i32, y: i32) -> Result<i32, &str>   {
+        let idx:   usize  = (y*self.width + x) as usize ;
+        if (x < self.width) && (y < self.height) {
+            Ok(self.pixels[idx])
+        } else {
+            Err("x or y coordinate out of bounds")
+        }
     }
 }
 
@@ -181,6 +200,9 @@ impl Image {
 
 fn main () {
     let mut imagesimple = PixelImageSimple::new();
+    imagesimple.set_width(100).set_height(200);
+
+
     println!("image height BEFORE is: {}", imagesimple.get_height());
     println!("image width BEFORE is: {}", imagesimple.get_width());
     imagesimple.set_width(100);
