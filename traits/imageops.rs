@@ -4,6 +4,16 @@ struct PixelImageSimple {
     height: i32,
 }
 
+impl PixelImageSimple {
+    fn new() -> PixelImageSimple {
+        PixelImageSimple {
+            pixels: Vec::new(),
+            width: 0,
+            height: 0,
+        }
+    }
+}
+
 struct ImageOperationResult  {
     image: PixelImageSimple,
 }
@@ -45,7 +55,7 @@ impl ImageOperation for ImageOperationReplaceColor {
 
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
         let one_res = ImageOperationInput {
-            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+            image : PixelImageSimple::new()
         };
         let mut res: Vec<ImageOperationInput> = Vec::new();
         res.push(one_res);
@@ -56,7 +66,7 @@ impl ImageOperation for ImageOperationReplaceColor {
 
     fn execute_op(&self, input: Vec<ImageOperationInput>) -> Vec<ImageOperationOutput> {
         let one_res = ImageOperationOutput {
-            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+            image : PixelImageSimple::new()
         };
         let mut res: Vec<ImageOperationOutput> = Vec::new();
         res.push(one_res);
@@ -67,7 +77,7 @@ impl ImageOperation for ImageOperationReplaceColor {
 
     fn after_execute_op(&self, output: Vec<ImageOperationOutput>) -> ImageOperationResult {
         let res = ImageOperationResult {
-           image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+           image : PixelImageSimple::new()
        };
        println!("impl ImageOperation for ImageOperationReplaceColor -> after_execute_op");
         // return res as function result
@@ -89,7 +99,7 @@ impl ImageOperation for ImageOperationSharpenColor {
     // Replace `Self` with the implementor type: `ImageOperationSharpenColor`
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
         let one_res = ImageOperationInput {
-            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+            image : PixelImageSimple::new()
         };
         let mut res: Vec<ImageOperationInput> = Vec::new();
         res.push(one_res);
@@ -100,7 +110,7 @@ impl ImageOperation for ImageOperationSharpenColor {
 
     fn execute_op(&self, input: Vec<ImageOperationInput>) -> Vec<ImageOperationOutput> {
         let one_res = ImageOperationOutput {
-            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+            image : PixelImageSimple::new()
         };
         let mut res: Vec<ImageOperationOutput> = Vec::new();
         res.push(one_res);
@@ -111,7 +121,7 @@ impl ImageOperation for ImageOperationSharpenColor {
 
     fn after_execute_op(&self, output: Vec<ImageOperationOutput>) -> ImageOperationResult {
         let res = ImageOperationResult {
-           image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+           image : PixelImageSimple::new()
        };
        println!("impl ImageOperation for ImageOperationSharpenColor -> after_execute_op");
         // return res as function result
@@ -148,18 +158,14 @@ impl Image {
         // for image_op in &self.image_operations.iter_mut() {
         for image_op in self.image_operations.iter_mut() {
             println!("iterating over image_ops - execute {}", image_op.name());
-            image_op.execute_op();
+            let mut input: Vec<ImageOperationInput> = Vec::new();
+            image_op.execute_op(input);
         }
      }
 }
 
 fn main () {
-    let imagesimple = PixelImageSimple {
-        // Static methods are called using double colons
-        width: 0,
-        height: 0,
-        pixels: Vec::new()
-    };
+    let imagesimple = PixelImageSimple::new();
 
     let sharpen_filter_op = Box::new(ImageOperationSharpenColor {
             name : "Sharpen Filter",
