@@ -5,11 +5,15 @@ struct PixelImageSimple {
 }
 
 struct ImageOperationResult  {
-    subimage: PixelImageSimple,
-    width:  i32,
-    height: i32,
-    startx: i32,
-    starty: i32,
+    image: PixelImageSimple,
+}
+
+struct ImageOperationInput {
+    image: PixelImageSimple
+}
+
+struct ImageOperationOutput {
+    image: PixelImageSimple,
 }
 
 struct ImageOperationReplaceColor  {
@@ -28,7 +32,9 @@ struct ImageOperationSharpenColor  {
 }
 
 trait ImageOperation {
-    fn execute_op(&self) -> ImageOperationResult;
+    fn before_execute_op(&self) -> Vec<ImageOperationInput>;
+    fn execute_op(&self, Vec<ImageOperationInput>) -> Vec<ImageOperationOutput>;
+    fn after_execute_op(&self, Vec<ImageOperationOutput>) -> ImageOperationResult;
 
     fn name(&self) -> &'static str;
     fn description(&self) -> &'static str;
@@ -36,86 +42,116 @@ trait ImageOperation {
 
 impl ImageOperation for ImageOperationReplaceColor {
     // Replace `Self` with the implementor type: `ImageOperationReplaceColor`
-    fn execute_op(&self) -> ImageOperationResult {
 
-         let res = ImageOperationResult {
-            // Static methods are called using double colons
-            width: 0,
-            height: 0,
-            startx: 0,
-            starty: 0,
-            subimage : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+    fn before_execute_op(&self) -> Vec<ImageOperationInput> {
+        let one_res = ImageOperationInput {
+            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
         };
-        println!("impl ImageOperation for ImageOperationReplaceColor -> executeOp");
-
-        // return res as function result
+        let mut res: Vec<ImageOperationInput> = Vec::new();
+        res.push(one_res);
+        println!("impl ImageOperation for ImageOperationReplaceColor -> before_execute_op");
+         // return res as function result
         res
     }
 
+    fn execute_op(&self, input: Vec<ImageOperationInput>) -> Vec<ImageOperationOutput> {
+        let one_res = ImageOperationOutput {
+            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+        };
+        let mut res: Vec<ImageOperationOutput> = Vec::new();
+        res.push(one_res);
+        println!("impl ImageOperation for ImageOperationReplaceColor -> executeOp");
+         // return res as function result
+        res
+    }
+
+    fn after_execute_op(&self, output: Vec<ImageOperationOutput>) -> ImageOperationResult {
+        let res = ImageOperationResult {
+           image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+       };
+       println!("impl ImageOperation for ImageOperationReplaceColor -> after_execute_op");
+        // return res as function result
+       res
+    }
+
+    // TODO: move this to the "ImageOperation" trait or struct ?
     fn description(&self) -> &'static str {
         self.description
     }
 
+    // TODO: move this to the "ImageOperation" trait or struct ?
     fn name(&self) -> &'static str {
         self.name
     }
 }
-
-//impl ImageOperationSharpenColor {
-//    fn new (&self) {
-        //self.name = "Image Sharpen Filter";
-        //self.description = "Image Sharpen Filter - i am the descirptipn of the Image Sharpen Filter";
-//    }
-//}
 
 impl ImageOperation for ImageOperationSharpenColor {
     // Replace `Self` with the implementor type: `ImageOperationSharpenColor`
-    fn execute_op(&self) -> ImageOperationResult {
-
-         let res = ImageOperationResult {
-            // Static methods are called using double colons
-            width: 0,
-            height: 0,
-            startx: 0,
-            starty: 0,
-            subimage : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+    fn before_execute_op(&self) -> Vec<ImageOperationInput> {
+        let one_res = ImageOperationInput {
+            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
         };
-        println!("impl ImageOperation for ImageOperationSharpenColor -> executeOp");
-
-        // return res as function result
+        let mut res: Vec<ImageOperationInput> = Vec::new();
+        res.push(one_res);
+        println!("impl ImageOperation for ImageOperationSharpenColor -> before_execute_op");
+         // return res as function result
         res
     }
 
-    fn description(&self) -> &'static str {
-        self.description
+    fn execute_op(&self, input: Vec<ImageOperationInput>) -> Vec<ImageOperationOutput> {
+        let one_res = ImageOperationOutput {
+            image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+        };
+        let mut res: Vec<ImageOperationOutput> = Vec::new();
+        res.push(one_res);
+        println!("impl ImageOperation for ImageOperationSharpenColor -> executeOp");
+         // return res as function result
+        res
     }
 
+    fn after_execute_op(&self, output: Vec<ImageOperationOutput>) -> ImageOperationResult {
+        let res = ImageOperationResult {
+           image : PixelImageSimple { width: 0, height: 0, pixels: Vec::new() }
+       };
+       println!("impl ImageOperation for ImageOperationSharpenColor -> after_execute_op");
+        // return res as function result
+       res
+    }
+
+    // TODO: move this to the "ImageOperation" trait or struct ?
     fn name(&self) -> &'static str {
         self.name
     }
+
+    // TODO: move this to the "ImageOperation" trait or struct ?
+    fn description(&self) -> &'static str {
+        self.description
+    }
 }
-
-
 
 // thx to http://stackoverflow.com/questions/25818082/vector-of-objects-belonging-to-a-trait
 struct Image {
-    // image_operations: &'static  Vec<ImageOperation>,
     image_operations: Vec<Box<ImageOperation>>,
 }
 
 impl Image {
-
-    fn new() {
-        println!("impl Image -> new() - initialize the image_operations array");
-        //self.image_operations = Vec::new();
+    // add an image operation to the array of image operation
+    fn add_op(&mut self, image_op: Box<ImageOperation>) {
+        println!("impl Image -> add_op() - adding the following image_op:  {}", image_op.name());
+        println!("impl Image -> add_op() - adding the following image_op (description):  {}", image_op.description());
+        &self.image_operations.push(image_op);
     }
 
-    // add an image operation to the array of image operation
-    fn add_op(&self, image_op: Box<ImageOperation>) {
-        println!("impl Image -> add_op() - adding the following image_op:  {}", image_op.name());
-
+    fn execute_image_ops(&mut self) {
+        println!("impl Image -> execute_image_ops() - iterate over vec/array and execute all image operations");
+        // &self.image_operations
+        // for image_op in &self.image_operations.iter_mut() {
+        for image_op in self.image_operations.iter_mut() {
+            println!("iterating over image_ops - execute {}", image_op.name());
+            image_op.execute_op();
+        }
      }
- }
+}
 
 fn main () {
     let imagesimple = PixelImageSimple {
@@ -138,8 +174,13 @@ fn main () {
             color_new: 0.44
     });
 
-    let image = Image { image_operations: Vec::new() };
+    let mut image = Image { image_operations: Vec::new() };
 
+    println!("MAIN: add 2 image filter\n\n");
     image.add_op(sharpen_filter_op);
     image.add_op(replace_color_op);
+    println!("\n\n");
+
+    println!("MAIN: execute all image operations\n\n");
+    image.execute_image_ops();
  }
