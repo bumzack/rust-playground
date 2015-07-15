@@ -12,6 +12,21 @@ impl PixelImageSimple {
             height: 0,
         }
     }
+    fn set_width(&mut self, width: i32) {
+        self.width  = width;
+    }
+
+    fn get_width(&mut self) ->i32 {
+        self.width
+    }
+
+    fn set_height(&mut self, height: i32) {
+        self.height  = height;
+    }
+
+    fn get_height(&mut self) ->i32 {
+        self.height
+    }
 }
 
 struct ImageOperationResult  {
@@ -165,8 +180,13 @@ impl Image {
 }
 
 fn main () {
-    let imagesimple = PixelImageSimple::new();
-
+    let mut imagesimple = PixelImageSimple::new();
+    println!("image height BEFORE is: {}", imagesimple.get_height());
+    println!("image width BEFORE is: {}", imagesimple.get_width());
+    imagesimple.set_width(100);
+    imagesimple.set_height(200);
+    println!("image width AFTER is: {}", imagesimple.get_width());
+    println!("image height AFTER is: {}", imagesimple.get_height());
     let sharpen_filter_op = Box::new(ImageOperationSharpenColor {
             name : "Sharpen Filter",
             description: "Sharpen Filter - description",
