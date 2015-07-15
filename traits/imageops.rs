@@ -66,17 +66,17 @@ struct ImageOperationOutput {
     image: PixelImageSimple,
 }
 
-struct ImageOperationReplaceColor  {
+struct ImageOperationReplaceColor<'a>  {
     color_old: f64,
     color_new: f64,
-
+    bitmap: &'a PixelImageSimple,
     name: &'static str,
     description: &'static str,
 }
 
-struct ImageOperationSharpenColor  {
+struct ImageOperationSharpenColor<'a>  {
     sharpen_factor: f64,
-
+    bitmap: &'a PixelImageSimple,
     name: &'static str,
     description: &'static str,
 }
@@ -89,9 +89,12 @@ trait ImageOperation {
 
     fn name(&self) -> &'static str;
     fn description(&self) -> &'static str;
+
+    // fn set_bitmap(&mut self, bitmap: &PixelImageSimple);
+    fn set_bitmap<'a>(&mut self, bitmap: &'a PixelImageSimple);
 }
 
-impl ImageOperation for ImageOperationReplaceColor {
+impl<'a> ImageOperation  for ImageOperationReplaceColor  <'a> {
     // Replace `Self` with the implementor type: `ImageOperationReplaceColor`
 
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
@@ -125,6 +128,10 @@ impl ImageOperation for ImageOperationReplaceColor {
        res
     }
 
+    fn set_bitmap(&mut self, bitmap: &'a PixelImageSimple) {
+        self.bitmap = bitmap;
+    }
+
     // TODO: move this to the "ImageOperation" trait or struct ?
     fn description(&self) -> &'static str {
         self.description
@@ -136,7 +143,7 @@ impl ImageOperation for ImageOperationReplaceColor {
     }
 }
 
-impl ImageOperation for ImageOperationSharpenColor {
+impl <'a> ImageOperation for ImageOperationSharpenColor <'a>  {
     // Replace `Self` with the implementor type: `ImageOperationSharpenColor`
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
         let one_res = ImageOperationInput {
@@ -167,6 +174,10 @@ impl ImageOperation for ImageOperationSharpenColor {
        println!("impl ImageOperation for ImageOperationSharpenColor -> after_execute_op");
         // return res as function result
        res
+    }
+
+    fn set_bitmap(&mut self, bitmap: &'a PixelImageSimple) {
+         self.bitmap = bitmap;
     }
 
     // TODO: move this to the "ImageOperation" trait or struct ?
@@ -219,19 +230,25 @@ fn main () {
         }
     }
 
+    // let img_cpy = &imagesimple;
+
     println!("get_pixel  x= 33, y = 12   ... val = {} ", imagesimple.get_pixel(33, 12).unwrap());
 
+    //TODO: convert the "ImageOperationSharpenColor" constructor to the Builder Logic like  PixelImageSimple
     let sharpen_filter_op = Box::new(ImageOperationSharpenColor {
             name : "Sharpen Filter",
             description: "Sharpen Filter - description",
-            sharpen_factor: 0.67
+            sharpen_factor: 0.67,
+            bitmap: &imagesimple
     });
 
+    //TODO: convert the "ImageOperationReplaceColor" constructor to the Builder Logic like  PixelImageSimple
     let replace_color_op = Box::new(ImageOperationReplaceColor {
             name : "Replace Color Filter",
             description: "Replace Color  Filter - description",
             color_old: 0.12,
-            color_new: 0.44
+            color_new: 0.44,
+            bitmap: &imagesimple
     });
 
     let mut image = Image { image_operations: Vec::new() };
