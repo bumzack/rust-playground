@@ -46,6 +46,12 @@ impl PixelImageSimple {
             Err("x or y coordinate out of bounds")
         }
     }
+
+    fn init_image(&mut self) ->  &mut PixelImageSimple {
+        // self.pixels = Vec::with_capacity((self.width * self.height) as usize);
+        self.pixels = vec![0; (self.width * self.height) as usize];
+        self
+    }
 }
 
 struct ImageOperationResult  {
@@ -74,6 +80,7 @@ struct ImageOperationSharpenColor  {
     name: &'static str,
     description: &'static str,
 }
+
 
 trait ImageOperation {
     fn before_execute_op(&self) -> Vec<ImageOperationInput>;
@@ -200,15 +207,20 @@ impl Image {
 
 fn main () {
     let mut imagesimple = PixelImageSimple::new();
-    imagesimple.set_width(100).set_height(200);
+    let width: i32 = 100;
+    let height: i32 = 200;
 
+    imagesimple.set_width(width).set_height(height).init_image();
 
-    println!("image height BEFORE is: {}", imagesimple.get_height());
-    println!("image width BEFORE is: {}", imagesimple.get_width());
-    imagesimple.set_width(100);
-    imagesimple.set_height(200);
-    println!("image width AFTER is: {}", imagesimple.get_width());
-    println!("image height AFTER is: {}", imagesimple.get_height());
+    for x in 0..imagesimple.get_width() {
+        for y in 0..imagesimple.get_height() {
+            println!("set_pixel  x= {}, y = {} ", x, y);
+            imagesimple.set_pixel(x, y, 10);
+        }
+    }
+
+    println!("get_pixel  x= 33, y = 12   ... val = {} ", imagesimple.get_pixel(33, 12).unwrap());
+
     let sharpen_filter_op = Box::new(ImageOperationSharpenColor {
             name : "Sharpen Filter",
             description: "Sharpen Filter - description",
