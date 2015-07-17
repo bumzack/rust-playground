@@ -30,12 +30,12 @@ struct ImageOperationReplaceColor<'a>  {
     name: &'static str,
 }
 
-trait ImageOperation {
-    fn set_bitmap<'a>(&mut self, bitmap: &'a PixelImageSimple);
+trait ImageOperation<'a>{
+    fn set_bitmap(&mut self, bitmap: &'a PixelImageSimple);
     fn name(&self) -> &'static str;
 }
 
-impl<'a> ImageOperation  for ImageOperationReplaceColor  <'a> {
+impl<'a> ImageOperation<'a>  for ImageOperationReplaceColor  <'a> {
     // Replace `Self` with the implementor type: `ImageOperationReplaceColor`
 
     fn set_bitmap(&mut self, bitmap: &'a PixelImageSimple) {
@@ -57,14 +57,14 @@ fn main () {
     //TODO: convert the "ImageOperationSharpenColor" constructor to the Builder Logic like  PixelImageSimple
     let sharpen_filter_op = Box::new(ImageOperationReplaceColor {
             name : "Sharpen Filter",
-            description: "Sharpen Filter - description",
-            sharpen_factor: 0.67,
-            bitmap: imagesimple
+            color_old: 0.67,
+            color_new: 0.89,
+            bitmap: &imagesimple
     });
     let sharpen_filter_op2 = Box::new(ImageOperationReplaceColor {
-            name : "Sharpen Filter",
-            description: "Sharpen Filter - description",
-            sharpen_factor: 0.67,
-            bitmap: imagesimple
+            name : "Sharpen Filter2",
+            color_old: 0.67,
+            color_new: 0.89,
+            bitmap: &imagesimple
     });
 }
