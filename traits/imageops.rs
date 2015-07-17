@@ -88,7 +88,7 @@ impl PixelImageSimpleBuilder {
     }
 }
 
-struct ImageOperationResult  {
+struct ImageOperationResult {
     image: PixelImageSimple,
 }
 
@@ -116,6 +116,8 @@ struct ImageOperationSharpenColor<'a>  {
 }
 
 trait ImageOperation<'a> {
+    // type Bitmap = PixelImageSimple;
+
     fn before_execute_op(&self) -> Vec<ImageOperationInput>;
     fn execute_op(&self, Vec<ImageOperationInput>) -> Vec<ImageOperationOutput>;
     fn after_execute_op(&self, Vec<ImageOperationOutput>) -> ImageOperationResult;
@@ -127,7 +129,7 @@ trait ImageOperation<'a> {
     fn set_bitmap(&mut self, bitmap: &'a PixelImageSimple);
 }
 
-impl<'a> ImageOperation<'a> for ImageOperationReplaceColor  <'a> {
+impl<'a> ImageOperation<'a> for ImageOperationReplaceColor<'a> {
     // Replace `Self` with the implementor type: `ImageOperationReplaceColor`
 
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
@@ -289,11 +291,11 @@ fn main () {
     let mut image = Image { image_operations: Vec::new() };
 
     println!("MAIN: add 2 image filter\n\n");
-    image.add_op(sharpen_filter_op);
-    image.add_op(replace_color_op);
-    println!("\n\n");
+    //image.add_op(sharpen_filter_op);
+    //image.add_op(replace_color_op);
+    //println!("\n\n");
 
-    println!("MAIN: execute all image operations\n\n");
-    image.execute_image_ops();
+    //println!("MAIN: execute all image operations\n\n");
+    //image.execute_image_ops();
 
  }
