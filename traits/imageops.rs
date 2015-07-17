@@ -4,7 +4,7 @@ struct PixelImageSimple {
     height: i32,
 }
 
-impl PixelImageSimple {
+impl<'a> PixelImageSimple  {
     fn new() -> PixelImageSimple {
         PixelImageSimple {
             pixels: Vec::new(),
@@ -13,16 +13,16 @@ impl PixelImageSimple {
         }
     }
 
-    fn set_width(&mut self, width: i32) ->  &mut PixelImageSimple {
+    fn set_width(& mut self , width: i32) ->  &mut PixelImageSimple  {
         self.width  = width;
         self
     }
 
-    fn get_width(&mut self) -> i32 {
+    fn get_width(&  mut  self) -> i32 {
         self.width
     }
 
-    fn set_height(&mut self, height: i32) ->  &mut PixelImageSimple {
+    fn set_height(& mut self, height: i32) ->  &mut PixelImageSimple {
         self.height  = height;
         self
     }
@@ -88,11 +88,11 @@ impl PixelImageSimpleBuilder {
     }
 }
 
-struct ImageOperationResult {
+struct ImageOperationResult  {
     image: PixelImageSimple,
 }
 
-struct ImageOperationInput {
+struct ImageOperationInput  {
     image: PixelImageSimple
 }
 
@@ -287,15 +287,13 @@ fn main () {
             bitmap: &imagesimple
     });
 
-
     let mut image = Image { image_operations: Vec::new() };
 
     println!("MAIN: add 2 image filter\n\n");
-    //image.add_op(sharpen_filter_op);
+    image.add_op(sharpen_filter_op);
     //image.add_op(replace_color_op);
     //println!("\n\n");
 
     //println!("MAIN: execute all image operations\n\n");
     //image.execute_image_ops();
-
- }
+}
