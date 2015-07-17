@@ -27,7 +27,7 @@ impl PixelImageSimple {
         self
     }
 
-    fn get_height(&mut self) ->i32 {
+    fn get_height(&mut self) -> i32 {
         self.height
     }
 
@@ -46,11 +46,45 @@ impl PixelImageSimple {
             Err("x or y coordinate out of bounds")
         }
     }
+}
 
-    fn init_image(&mut self) ->  &mut PixelImageSimple {
+struct PixelImageSimpleBuilder {
+    pixels:  Vec<i32>,
+    width: i32,
+    height: i32,
+}
+
+impl PixelImageSimpleBuilder {
+    fn new() -> PixelImageSimpleBuilder {
+        PixelImageSimpleBuilder {
+            pixels: Vec::new(),
+            width: 0,
+            height: 0,
+        }
+    }
+
+    fn set_width(&mut self, width: i32) ->  &mut PixelImageSimpleBuilder {
+        self.width  = width;
+        self
+    }
+
+    fn set_height(&mut self, height: i32) ->  &mut PixelImageSimpleBuilder {
+        self.height  = height;
+        self
+    }
+
+    fn init_image(&mut self) ->  &mut PixelImageSimpleBuilder {
         // self.pixels = Vec::with_capacity((self.width * self.height) as usize);
         self.pixels = vec![0; (self.width * self.height) as usize];
         self
+    }
+
+    fn finalize(&self) -> PixelImageSimple  {
+        PixelImageSimple {
+            pixels: vec![0; (self.width * self.height) as usize],
+            width: self.width,
+            height: self.height,
+        }
     }
 }
 
@@ -81,7 +115,7 @@ struct ImageOperationSharpenColor<'a>  {
     description: &'static str,
 }
 
-trait ImageOperation {
+trait ImageOperation<'a> {
     fn before_execute_op(&self) -> Vec<ImageOperationInput>;
     fn execute_op(&self, Vec<ImageOperationInput>) -> Vec<ImageOperationOutput>;
     fn after_execute_op(&self, Vec<ImageOperationOutput>) -> ImageOperationResult;
@@ -90,10 +124,10 @@ trait ImageOperation {
     fn description(&self) -> &'static str;
 
     // fn set_bitmap(&mut self, bitmap: &PixelImageSimple);
-    fn set_bitmap<'a>(&mut self, bitmap: &'a PixelImageSimple);
+    fn set_bitmap(&mut self, bitmap: &'a PixelImageSimple);
 }
 
-impl<'a> ImageOperation  for ImageOperationReplaceColor  <'a> {
+impl<'a> ImageOperation<'a> for ImageOperationReplaceColor  <'a> {
     // Replace `Self` with the implementor type: `ImageOperationReplaceColor`
 
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
@@ -107,10 +141,11 @@ impl<'a> ImageOperation  for ImageOperationReplaceColor  <'a> {
         res
     }
 
-    fn execute_op(&self, input: Vec<ImageOperationInput>) -> Vec<ImageOperationOutput> {
+    fn execute_op(&self, input: Vec<ImageOperationInput>) ->  Vec<ImageOperationOutput> {
         let one_res = ImageOperationOutput {
             image : PixelImageSimple::new()
         };
+        // let dummy = Vec::new();
         let mut res: Vec<ImageOperationOutput> = Vec::new();
         res.push(one_res);
         println!("impl ImageOperation for ImageOperationReplaceColor -> executeOp");
@@ -142,7 +177,7 @@ impl<'a> ImageOperation  for ImageOperationReplaceColor  <'a> {
     }
 }
 
-impl <'a> ImageOperation for ImageOperationSharpenColor <'a>  {
+impl<'a> ImageOperation<'a> for ImageOperationSharpenColor <'a>  {
     // Replace `Self` with the implementor type: `ImageOperationSharpenColor`
     fn before_execute_op(&self) -> Vec<ImageOperationInput> {
         let one_res = ImageOperationInput {
@@ -191,13 +226,13 @@ impl <'a> ImageOperation for ImageOperationSharpenColor <'a>  {
 }
 
 // thx to http://stackoverflow.com/questions/25818082/vector-of-objects-belonging-to-a-trait
-struct Image {
-    image_operations: Vec<Box<ImageOperation>>,
+struct Image<'a> {
+    image_operations:  Vec<Box<ImageOperation <'a> >>,
 }
 
-impl Image {
+impl<'a>  Image<'a>   {
     // add an image operation to the array of image operation
-    fn add_op(&mut self, image_op: Box<ImageOperation>) {
+    fn add_op(&mut self, image_op: Box<ImageOperation <'a> >) {
         println!("impl Image -> add_op() - adding the following image_op:  {}", image_op.name());
         println!("impl Image -> add_op() - adding the following image_op (description):  {}", image_op.description());
         &self.image_operations.push(image_op);
@@ -216,22 +251,22 @@ impl Image {
 }
 
 fn main () {
-    let mut imagesimple = PixelImageSimple::new();
+    // let imagesimple = PixelImageSimple::new();
     let width: i32 = 100;
     let height: i32 = 200;
 
-    imagesimple.set_width(width).set_height(height).init_image();
+    let mut imagesimple: PixelImageSimple = PixelImageSimpleBuilder::new()
+                .set_width(width)
+                .set_height(height)
+                .init_image()
+                .finalize();
 
-    for x in 0..imagesimple.get_width() {
-        for y in 0..imagesimple.get_height() {
-            println!("set_pixel  x= {}, y = {} ", x, y);
-            imagesimple.set_pixel(x, y, 10);
-        }
-    }
-
-    // let img_cpy = &imagesimple;
+    // let imagesimple2 = imagesimple.set_width(width).set_height(height).init_image();
+    // let imagesimple3 = imagesimple.set_width(width).set_height(height).init_image();
 
     println!("get_pixel  x= 33, y = 12   ... val = {} ", imagesimple.get_pixel(33, 12).unwrap());
+    println!("get_pixel  x= 33, y = 12   ... val = {} ", imagesimple.get_pixel(33, 12).unwrap());
+
 
     //TODO: convert the "ImageOperationSharpenColor" constructor to the Builder Logic like  PixelImageSimple
     let sharpen_filter_op = Box::new(ImageOperationSharpenColor {
@@ -250,6 +285,7 @@ fn main () {
             bitmap: &imagesimple
     });
 
+
     let mut image = Image { image_operations: Vec::new() };
 
     println!("MAIN: add 2 image filter\n\n");
@@ -259,4 +295,5 @@ fn main () {
 
     println!("MAIN: execute all image operations\n\n");
     image.execute_image_ops();
+
  }
