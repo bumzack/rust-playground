@@ -4,52 +4,52 @@ trait ImageOps {
     fn example_method(&self);
 }
 
-struct Image<'a> {
-    things: Vec<Box<ImageOps + 'a>>
-}
-
-struct ExampleThing1 {
+struct ImageOpSharpen {
     just_some_random_data: i32
 }
 
-struct ExampleThing2 {
+struct ImageOpReplaceColor {
     other_random_data: f64
 }
 
-impl ImageOps for ExampleThing1 {
+impl ImageOps for ImageOpSharpen {
     fn example_method(&self) {
-        println!("Example trait impl for ExampleThing 1");
+        println!("Example trait impl for ImageOpSharpen");
     }
 }
-impl ImageOps for ExampleThing2 {
+impl ImageOps for ImageOpReplaceColor {
     fn example_method(&self) {
-        println!("Example trait impl for ExampleThing 2");
+        println!("Example trait impl for ImageOpReplaceColor");
     }
 }
-impl ExampleThing1 {
-    fn new() -> ExampleThing1 {
-        ExampleThing1 { just_some_random_data: 1}
+impl ImageOpSharpen {
+    fn new() -> ImageOpSharpen {
+        ImageOpSharpen   { just_some_random_data: 1}
     }
 }
 
-impl ExampleThing2 {
-    fn new() -> ExampleThing2 {
-        ExampleThing2 { other_random_data: 1.0}
+impl ImageOpReplaceColor {
+    fn new() -> ImageOpReplaceColor {
+        ImageOpReplaceColor { other_random_data: 1.0}
     }
+}
+
+struct Image<'a> {
+    image_operations: Vec<Box<ImageOps + 'a>>
 }
 
 impl<'a> Image<'a> {
     fn new() -> Image<'a> {
-        let bla = box ExampleThing1::new() as Box<ImageOps>;
-        let bla2 = box ExampleThing2::new() as Box<ImageOps>;
+        let bla = box ImageOpSharpen::new() as Box<ImageOps>;
+        let bla2 = box ImageOpReplaceColor::new() as Box<ImageOps>;
 
-        Image { things: vec![bla, bla2] }
+        Image { image_operations: vec![bla, bla2] }
     }
 }
 
 fn main() {
         let example = Image::new();
-        for thing in example.things.iter() {
+        for thing in example.image_operations.iter() {
                 thing.example_method();
         }
 }
