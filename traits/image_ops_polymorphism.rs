@@ -67,6 +67,10 @@ impl<'a> Image<'a> {
 
         Image { image_operations: vec![bla, bla2, bla3] }
     }
+
+    fn add_op(&mut self, image_ops: Box<ImageOps>) {
+           self.image_operations.push(image_ops);
+    }
 }
 
 fn main() {
