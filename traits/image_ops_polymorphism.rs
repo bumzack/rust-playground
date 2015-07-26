@@ -1,5 +1,3 @@
-#![feature(box_syntax)]
-
 struct PixelImageSimple<'a> {
     pixels: &'a Vec<i32>,
     width: i32,
@@ -70,22 +68,17 @@ impl<'a> Image<'a> {
 }
 
 fn main() {
+    let mut image = Image::new();
+    let imagesimple = PixelImageSimple::new();
+    let bla2 = Box::new(ImageOpSharpen::new2(&imagesimple)) as Box<ImageOps>;
+    let bla3 = Box::new(ImageOpSharpen::new2(&imagesimple)) as Box<ImageOps>;
+    let bla4 = Box::new(ImageOpSharpen::new2(&imagesimple)) as Box<ImageOps>;
 
-      let mut image = Image::new();
+//    image.add_op(bla2);
+//    image.add_op(bla3);
+//    image.add_op(bla4);
 
-      let imagesimple = PixelImageSimple::new();
-      // let bla = box ImageOpSharpen::new() as Box<ImageOps>;
-      let bla2 = box ImageOpReplaceColor::new() as Box<ImageOps>;
-    //  let image_cp = Box::new(imagesimple);
-      let bla3 = box ImageOpSharpen::new2(&imagesimple) as Box<ImageOps>;
-      let bla4 = box ImageOpSharpen::new2(&imagesimple) as Box<ImageOps>;
-
-      image.add_op(bla2);
-      image.add_op(bla3);
-      image.add_op(bla4);
-
-
-         for imageops in image.image_operations.iter() {
-                imageops.example_method();
-        }
+    for imageop in image.image_operations.iter() {
+//        imageop.example_method();
+    }
 }
