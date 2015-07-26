@@ -18,7 +18,7 @@ struct ImageOperationSharpen<'a> {
 impl<'a> ImageOp<'a> for ImageOperationSharpen<'a> {
     type ImageData = PixelImageSimple<'a>;
     fn execute_op(&self) {
-        println!("ImageOperationSharpen - val = {}, width = {}", &self.val, &self.bitmapdata.width);
+        println!("ImageOperationSharpen - val = {}, width = {}, height = {}, pixels = {:?}", &self.val, &self.bitmapdata.width, &self.bitmapdata.height,&self.bitmapdata.pixels);
     }
 }
 
@@ -40,7 +40,7 @@ impl<'a> ImageOp<'a> for ImageOperationSharpen<'a> {
 fn main () {
     let bla = vec![1,2,3];
 
-    let bitmap = PixelImageSimple { pixels: &bla, width: 3, height:4 };
+    let bitmap = PixelImageSimple { pixels: &bla, width: 222, height:334 };
 
     let sharpen = ImageOperationSharpen { val: 23, bitmapdata: &bitmap };
     let sharpen2 = ImageOperationSharpen { val: 34, bitmapdata: &bitmap };
