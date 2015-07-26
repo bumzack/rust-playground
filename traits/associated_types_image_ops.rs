@@ -43,12 +43,12 @@ fn main () {
     let bitmap = PixelImageSimple { pixels: &bitmapdata, width: 222, height:334 };
     let bitmap2 = PixelImageSimple { pixels: &bitmapdata2, width: 111, height:289 };
 
+    let dummy    = ImageOperationSharpen { val: 34, bitmapdata: &bitmap2 };
     let sharpen     = ImageOperationSharpen { val: 23, bitmapdata: &bitmap };
-    let sharpen2    = ImageOperationSharpen { val: 34, bitmapdata: &bitmap2 };
 
     let mut c2: CollectionOfImageOps = Vec::new();
+    c2.push(&dummy);
     c2.push(&sharpen);
-    c2.push(&sharpen2);
 
 /*
     let mut image = Image::new();
