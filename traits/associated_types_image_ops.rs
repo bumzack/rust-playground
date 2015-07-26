@@ -22,10 +22,12 @@ impl<'a> ImageOp<'a> for ImageOperationSharpen<'a> {
     }
 }
 
-//struct Image<'a> {
-//    image_operations: Vec<Box<&'a ImageOp<ImageData=PixelImageSimple> + 'a>>
-//    image_operations: Vec<Box<&'a (ImageOp<ImageData = PixelImageSimple> + 'a)>>
-//}
+struct Image<'a> {
+    // image_operations: Vec<Box<ImageOp<ImageData = PixelImageSimple>>>
+    // image_operations: Vec<Box<&'a (ImageOp<ImageData = PixelImageSimple> + 'a)>>
+    // image_operations: Vec<Box<ImageOp<ImageData = PixelImageSimple<'a>>>>
+    image_operations: Vec<Box<ImageOp<PixelImageSimple +'a>>>
+}
 
 //impl<'a> Image<'a> {
 //  fn new() -> Image<'a> {
