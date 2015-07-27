@@ -1,5 +1,7 @@
 // thx to http://stackoverflow.com/questions/31640442/how-can-i-use-lifetime-bounds-to-solve-reference-must-be-valid-for-the-static-l
 
+// this also allows write access to  "PixelImageSimple"
+
 #![feature(drain)]
 
 struct PixelImageSimple {
