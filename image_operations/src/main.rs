@@ -8,24 +8,23 @@ use image_operation_rotate::ImageOperationRotate;
 
 use image::Image;
 
-
 mod pixel_image_simple;
 mod image_operation;
 mod image_operation_rotate;
 // mod image_operation_sharpen;
 mod image;
 
-
 fn main () {
-    let width: i32 = 100;
-    let height: i32 = 50;
-    let size = (width * height) as usize;
-    let mut bitmapdata: Vec<i32> = Vec::with_capacity(size);
+    let width = 100;
+    let height = 50;
+    let size = width * height;
+    //println!("MAIN - size: {}", size);
 
-    let x = bitmapdata.len();
-    for i in 0..x as usize {
-        bitmapdata[i] = 1;
-    }
+    let mut bitmapdata: Vec<i32> = vec![0; size as usize];
+
+     for i in 0..size as usize {
+        bitmapdata[i] = i as i32;
+     }
 
     let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
 
@@ -52,8 +51,10 @@ fn main () {
 
     for param  in &input  {
         println!("startx: {}, starty: {}, endx: {}, endy: {}", param.startx, param.starty, param.endx, param.endy);
+        println!("after println");
 
         let dummy: ImageOperationParam = image.image_operations[0].execute_op2(param);
+        println!("after let dummy: ImageOperationParam");
         output.push(dummy);
     }
 
@@ -62,6 +63,13 @@ fn main () {
 
     for param  in &output  {
          println!("OUTPUT     startx: {}, starty: {}, endx: {}, endy: {}", param.startx, param.starty, param.endx, param.endy);
+        // println!("OUTPUT     pixels: {:?}", param.bitmap.pixels);
 
     }
+
+    let resulting_bitmap = image.image_operations[0].merge_results(output);
+    println!("OUTPUT     resulting_bitmap.pixels: {:?}", resulting_bitmap.pixels);
+
+
+
 }

@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 pub struct PixelImageSimple {
     pub pixels: Vec<i32>,
     pub width: i32,
@@ -16,8 +14,12 @@ pub struct ImageOperationParam {
 
 impl ImageOperationParam  {
     pub fn new() -> ImageOperationParam {
-        let mut bitmapdata = vec![];
-        let emtpy =  PixelImageSimple { pixels: bitmapdata, width: 0, height:0 };
+        let emtpy =  PixelImageSimple { pixels: vec![], width: 0, height:0 };
+        ImageOperationParam { bitmap: emtpy, startx: 0, starty: 0, endx: 0, endy: 0 }
+    }
+
+    pub fn new2(width: i32, height: i32, bitmapdata: Vec<i32>) -> ImageOperationParam {
+        let emtpy =  PixelImageSimple { pixels: bitmapdata, width: width, height: height };
         ImageOperationParam { bitmap: emtpy, startx: 0, starty: 0, endx: 0, endy: 0 }
     }
 }
