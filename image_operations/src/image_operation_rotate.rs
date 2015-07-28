@@ -23,18 +23,18 @@ impl ImageOperation for ImageOperationRotate {
 
         let mut res_bitmap: Vec<i32> = vec![0; size as usize];
 
-        let offset = input.startx + input.starty * self.bitmapdata.width;
-
-        for x in 0..width {
+         for x in 0..width {
             for y in 0..height {
+                let x2 = x + input.startx;
+                let y2 = y + input.starty;
+
                 let idx = (y * width + x) as usize;
-                let idx2 = (offset + y * width + x) as usize;
+                let idx2 = (y2 * &self.bitmapdata.width + x2) as usize;
                 res_bitmap[idx] = &self.bitmapdata.pixels[idx2] + 1;
             }
         }
 
         let mut res = ImageOperationParam::new2(width, height, res_bitmap);
-        println!("execute_op2 - after 'let mut res'" );
 
         res.startx = input.startx;
         res.starty = input.starty;
@@ -54,23 +54,31 @@ impl ImageOperation for ImageOperationRotate {
         let part_width = &self.bitmapdata.width / count_parts;
         let part_height = &self.bitmapdata.height / count_parts;
 
-        for x in 0..(count_parts-1) {
-            for y in 0..(count_parts-1) {
+        for y in 0..count_parts {
+            for x in 0..count_parts {
                 let mut dummy = ImageOperationParam::new();
                 dummy.startx = x * part_width;
                 dummy.starty = y * part_height;
                 dummy.endx = dummy.startx + part_width;
                 dummy.endy = dummy.starty + part_height;
+                if (x == count_parts-1) {
+                    dummy.endx = self.bitmapdata.width;
+                }
+                if (y == count_parts-1) {
+                    dummy.endy = self.bitmapdata.height;
+                }
                 res.push(dummy);
             }
         }
+
         // to make sure the whole image is covered
         let mut dummy = ImageOperationParam::new();
         dummy.startx = (count_parts-1) * part_width;
         dummy.starty = (count_parts-1) * part_height;
         dummy.endx = self.bitmapdata.width;
         dummy.endy = self.bitmapdata.height;
-        res.push(dummy);
+        //res.push(dummy);
+
         res
     }
 
@@ -79,14 +87,16 @@ impl ImageOperation for ImageOperationRotate {
         let mut res_bitmap: Vec<i32> = vec![0; size as usize];
 
         for part in partial_results {
-            let offset = part.startx + part.starty * self.bitmapdata.width;
             let width  = part.bitmap.width;
             let height  = part.bitmap.height;
 
             for x in 0..width {
                 for y in 0..height {
+                    let x2 = x + part.startx;
+                    let y2 = y + part.starty;
+
                     let idx = (y * width + x) as usize;
-                    let idx2 = (offset + y * width + x) as usize;
+                    let idx2 = (y2 * self.bitmapdata.width + x2) as usize;
                     res_bitmap[idx2] = part.bitmap.pixels[idx];
                 }
             }
