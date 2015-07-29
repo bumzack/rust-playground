@@ -21,20 +21,18 @@ impl ImageOperation for ImageOperationRotate {
         let height: i32 = &input.endy - &input.starty;
         let size = (width * height) as usize;
 
-        let mut res_bitmap: Vec<i32> = vec![0; size as usize];
+        let res_bitmap: Vec<i32> = vec![0; size as usize];
+        let mut res = ImageOperationParam::new2(width, height, res_bitmap);
 
-         for x in 0..width {
+        // this is gonna be THE algorithm sometimes
+        // here just mltiply by  2
+        for x in 0..width {
             for y in 0..height {
                 let x2 = x + input.startx;
                 let y2 = y + input.starty;
-
-                let idx = (y * width + x) as usize;
-                let idx2 = (y2 * &self.bitmapdata.width + x2) as usize;
-                res_bitmap[idx] = &self.bitmapdata.pixels[idx2] + 1;
+                res.bitmap.set_pixel(x, y, self.bitmapdata.get_pixel(x2, y2) + 1);
             }
         }
-
-        let mut res = ImageOperationParam::new2(width, height, res_bitmap);
 
         res.startx = input.startx;
         res.starty = input.starty;
@@ -47,6 +45,7 @@ impl ImageOperation for ImageOperationRotate {
         res
     }
 
+    // TODO: move to trait "ImageOperation" - they can be used indepent of the actual image operation
     fn prepare_op(&self) -> Vec<ImageOperationParam> {
         let mut res: Vec<ImageOperationParam> = vec![];
         // This is decided by the algorithm - how many parts to divide the bitmap into
@@ -82,9 +81,11 @@ impl ImageOperation for ImageOperationRotate {
         res
     }
 
+    // TODO: move to trait "ImageOperation"
     fn merge_results(&self, partial_results: Vec<ImageOperationParam>) -> PixelImageSimple {
         let size = (self.bitmapdata.width * self.bitmapdata.height) as usize;
-        let mut res_bitmap: Vec<i32> = vec![0; size as usize];
+        let res_bitmap: Vec<i32> = vec![0; size as usize];
+        let mut bitmap = PixelImageSimple { pixels: res_bitmap, width: self.bitmapdata.width, height: self.bitmapdata.height };
 
         for part in partial_results {
             let width  = part.bitmap.width;
@@ -95,13 +96,18 @@ impl ImageOperation for ImageOperationRotate {
                     let x2 = x + part.startx;
                     let y2 = y + part.starty;
 
-                    let idx = (y * width + x) as usize;
-                    let idx2 = (y2 * self.bitmapdata.width + x2) as usize;
-                    res_bitmap[idx2] = part.bitmap.pixels[idx];
+                    bitmap.set_pixel(x2, y2, part.bitmap.get_pixel(x, y));
                 }
             }
         }
-        let bitmap = PixelImageSimple { pixels: res_bitmap, width: self.bitmapdata.width, height: self.bitmapdata.height };
         bitmap
+    }
+
+    fn set_input_bitmap(&self, input_bitmap: PixelImageSimple) {
+
+    }
+
+    fn get_output_bitmap(&self) -> PixelImageSimple {
+        PixelImageSimple { pixels: vec![], width: 0, height: 0 }
     }
 }
