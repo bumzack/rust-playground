@@ -2,3 +2,7 @@
 name = "image_operations"
 version = "0.0.1"
 authors = ["bumzack"]
+
+
+[dependencies]
+image = "*"
