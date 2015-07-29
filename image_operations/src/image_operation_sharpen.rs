@@ -99,4 +99,12 @@ impl ImageOperation for ImageOperationSharpen {
         }
         bitmap
     }
+
+    fn set_input_bitmap(&self, input_bitmap: PixelImageSimple) {
+
+    }
+
+    fn get_output_bitmap(&self) -> PixelImageSimple {
+        PixelImageSimple { pixels: vec![], width: 0, height: 0 }
+    }
 }
