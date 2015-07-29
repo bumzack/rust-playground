@@ -4,6 +4,22 @@ pub struct PixelImageSimple {
     pub height: i32,
 }
 
+impl PixelImageSimple  {
+    pub fn new() -> PixelImageSimple {
+        PixelImageSimple { pixels: vec![], width: 0, height:0 }
+    }
+
+    pub fn get_pixel(&self, x: i32, y: i32) -> i32 {
+        let idx = (y * self.width + x) as usize;
+        self.pixels[idx]
+    }
+
+    pub fn set_pixel(&mut self, x: i32, y: i32, val: i32) {
+        let idx = (y * self.width + x) as usize;
+        self.pixels[idx] = val;
+    }
+}
+
 pub struct ImageOperationParam {
     pub startx: i32,
     pub starty: i32,
