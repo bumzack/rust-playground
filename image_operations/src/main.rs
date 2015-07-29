@@ -14,6 +14,7 @@ mod image_operation_rotate;
 mod image_operation_sharpen;
 mod image;
 
+
 fn main () {
     let width = 20;
     let height = 10;
@@ -29,46 +30,125 @@ fn main () {
 
     //println!("MAIN - INPUT pixels: {:?}", & bitmap.pixels);
 
-    //let sharpen = ImageOperationSharpen { val: 34, bitmapdata: bitmap.clone() };
+    let sharpen = ImageOperationSharpen { val: 34, bitmapdata: bitmap.clone() };
     let rotate = ImageOperationRotate { angle: 13.32, bitmapdata: bitmap };
 
-    //let box_sharpen = Box::new(sharpen);
+    let box_sharpen = Box::new(sharpen);
     let box_rotate = Box::new(rotate);
 
     let mut image = Image::new();
 
-    //image.add_op(box_sharpen);
+    image.add_op(box_sharpen);
     image.add_op(box_rotate);
 
-    println!("execute_op()");
-    for imageops in image.image_operations.iter() {
-        imageops.execute_op();
+    let mut bitmapdata: Vec<i32> = vec![];
+    let mut finished_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
+
+    let bla = image.image_operations.len();
+    println!("MAIN      bla = image.image_operations.len(): {:?}", bla);
+
+    for i in 0..bla as i32 {
+        let mut input: Vec<ImageOperationParam> = vec![];
+        let mut output: Vec<ImageOperationParam> = vec![];
+
+        let mut bitmapdata: Vec<i32> = vec![];
+        let mut tmp_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
+
+        let idx = i as usize;
+        println!("LOOP      idx =  {:?}", idx);
+
+        input = image.image_operations[idx].prepare_op();
+
+        for param in &input  {
+             let dummy: ImageOperationParam = image.image_operations[idx].execute_op2(param);
+             output.push(dummy);
+        }
+
+        let tmp_bitmap = image.image_operations[idx].merge_results(output);
+        println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
+        println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
+        println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
+
+        if idx < image.image_operations.len()-1 {
+            println!("LOOP    setting input bitmap  idx =  {:?}", idx);
+            image.image_operations[idx + 1].set_input_bitmap(tmp_bitmap);
+        } else {
+            finished_bitmap = tmp_bitmap;
+        }
     }
+    println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
+}
 
-    let mut input: Vec<ImageOperationParam> = vec![];
-    let mut output: Vec<ImageOperationParam> = vec![];
+#[test]
+fn test_rotate_sharpen_filter() {
+    let width = 2000;
+    let height = 1000;
+    let size = width * height;
 
-    input = image.image_operations[0].prepare_op();
+    let mut bitmapdata: Vec<i32> = vec![0; size as usize];
 
-    for param in &input  {
-        println!("startx: {}, starty: {}, endx: {}, endy: {}", param.startx, param.starty, param.endx, param.endy);
-        println!("after println");
+     for i in 0..size as usize {
+        bitmapdata[i] = i as i32;
+     }
 
-        let dummy: ImageOperationParam = image.image_operations[0].execute_op2(param);
-        //println!("after let dummy: ImageOperationParam");
-        output.push(dummy);
+    let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
+
+    //println!("MAIN - INPUT pixels: {:?}", & bitmap.pixels);
+
+    let sharpen = ImageOperationSharpen { val: 34, bitmapdata: bitmap.clone() };
+    let rotate = ImageOperationRotate { angle: 13.32, bitmapdata: bitmap };
+
+    let box_sharpen = Box::new(sharpen);
+    let box_rotate = Box::new(rotate);
+
+    let mut image = Image::new();
+
+    image.add_op(box_sharpen);
+    image.add_op(box_rotate);
+
+    let mut bitmapdata: Vec<i32> = vec![];
+    let mut finished_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
+
+    let bla = image.image_operations.len();
+    println!("MAIN      bla = image.image_operations.len(): {:?}", bla);
+
+    for i in 0..bla as i32 {
+        let mut input: Vec<ImageOperationParam> = vec![];
+        let mut output: Vec<ImageOperationParam> = vec![];
+
+        let mut bitmapdata: Vec<i32> = vec![];
+        let mut tmp_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
+
+        let idx = i as usize;
+        println!("LOOP      idx =  {:?}", idx);
+
+        input = image.image_operations[idx].prepare_op();
+
+        for param in &input  {
+             let dummy: ImageOperationParam = image.image_operations[idx].execute_op2(param);
+             output.push(dummy);
+        }
+
+        let tmp_bitmap = image.image_operations[idx].merge_results(output);
+        println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
+        println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
+        println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
+
+        if idx < image.image_operations.len()-1 {
+            println!("LOOP    setting input bitmap  idx =  {:?}", idx);
+            image.image_operations[idx + 1].set_input_bitmap(tmp_bitmap);
+        } else {
+            finished_bitmap = tmp_bitmap;
+        }
     }
+    println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
 
-    println!("");
-    println!("");
-
-    for param  in &output  {
-        println!("OUTPUT     startx: {}, starty: {}, endx: {}, endy: {}", param.startx, param.starty, param.endx, param.endy);
-        //println!("OUTPUT     pixels: {:?}", param.bitmap.pixels);
+    let mut expected_result: Vec<i32> = vec![0; size as usize];
+    for i in 0..size as usize {
+        expected_result[i] = ((i*2)+1) as i32;
     }
+    assert_eq!(expected_result, finished_bitmap.pixels);
 
-    let resulting_bitmap = image.image_operations[0].merge_results(output);
-    println!("OUTPUT     resulting_bitmap.pixels: {:?}", resulting_bitmap.pixels);
 }
 
 
@@ -147,7 +227,6 @@ fn test_sharpen_filter() {
     }
 
     let resulting_bitmap = image.image_operations[0].merge_results(output);
-
     let mut expected_result: Vec<i32> = vec![0; size as usize];
 
     for i in 0..size as usize {
