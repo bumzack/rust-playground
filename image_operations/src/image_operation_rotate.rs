@@ -103,8 +103,8 @@ impl ImageOperation for ImageOperationRotate {
         bitmap
     }
 
-    fn set_input_bitmap(&self, input_bitmap: PixelImageSimple) {
-
+    fn set_input_bitmap(&mut self, input_bitmap: PixelImageSimple) {
+        self.bitmapdata = Rc::new(input_bitmap);
     }
 
     fn get_output_bitmap(&self) -> PixelImageSimple {
