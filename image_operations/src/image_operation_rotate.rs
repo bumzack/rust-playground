@@ -60,10 +60,10 @@ impl ImageOperation for ImageOperationRotate {
                 dummy.starty = y * part_height;
                 dummy.endx = dummy.startx + part_width;
                 dummy.endy = dummy.starty + part_height;
-                if (x == count_parts-1) {
+                if x == count_parts-1 {
                     dummy.endx = self.bitmapdata.width;
                 }
-                if (y == count_parts-1) {
+                if y == count_parts-1 {
                     dummy.endy = self.bitmapdata.height;
                 }
                 res.push(dummy);
