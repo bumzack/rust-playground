@@ -2,6 +2,7 @@ use std::rc::Rc;
 
 use pixel_image_simple::PixelImageSimple;
 use pixel_image_simple::ImageOperationParam;
+use pixel_image_simple::RGBA8;
 
 use image_operation::ImageOperation;
 
@@ -12,8 +13,8 @@ pub struct ImageOperationSharpen {
 
 impl ImageOperation for ImageOperationSharpen {
     fn execute_op(&self) {
-        println!("ImageOperationSharpen - val = {}, width = {}, height = {}, pixels = {:?}",
-            &self.val, &self.bitmapdata.width, &self.bitmapdata.height,&self.bitmapdata.pixels);
+        println!("ImageOperationSharpen - val = {}, width = {}, height = {}",
+            &self.val, &self.bitmapdata.width, &self.bitmapdata.height );
     }
 
     fn execute_op2(&self, input: &ImageOperationParam) -> ImageOperationParam {
@@ -21,8 +22,11 @@ impl ImageOperation for ImageOperationSharpen {
         let height: i32 = &input.endy - &input.starty;
         let size = (width * height) as usize;
 
-        let res_bitmap: Vec<i32> = vec![0; size as usize];
+        let res_bitmap: Vec<RGBA8> = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
         let mut res = ImageOperationParam::new2(width, height, res_bitmap);
+
+        let mut new_pixel: RGBA8 = RGBA8 {r:0, g: 0, b: 0, a: 0};
+        let mut old_pixel: RGBA8 = RGBA8 {r:0, g: 0, b: 0, a: 0};
 
         // this is gonna be THE algorithm sometimes
         // here just mltiply by  2
@@ -30,7 +34,14 @@ impl ImageOperation for ImageOperationSharpen {
             for y in 0..height {
                 let x2 = x + input.startx;
                 let y2 = y + input.starty;
-                res.bitmap.set_pixel(x, y, self.bitmapdata.get_pixel(x2, y2) * 2);
+
+                old_pixel = self.bitmapdata.get_pixel(x2, y2);
+                new_pixel.r = old_pixel.r * 2;
+                new_pixel.g = old_pixel.g * 2;
+                new_pixel.b = old_pixel.b * 2;
+                new_pixel.a = old_pixel.a * 2;
+
+                res.bitmap.set_pixel(x, y, new_pixel);
             }
         }
 
@@ -81,7 +92,7 @@ impl ImageOperation for ImageOperationSharpen {
 
     fn merge_results(&self, partial_results: Vec<ImageOperationParam>) -> PixelImageSimple {
         let size = (self.bitmapdata.width * self.bitmapdata.height) as usize;
-        let res_bitmap: Vec<i32> = vec![0; size as usize];
+        let res_bitmap: Vec<RGBA8> = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
         let mut bitmap = PixelImageSimple { pixels: res_bitmap, width: self.bitmapdata.width, height: self.bitmapdata.height };
 
         for part in partial_results {
