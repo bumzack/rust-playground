@@ -97,11 +97,6 @@ impl ImageOperation for ImageOperationSharpen {
                 }
             }
         }
-        println!("ImageOperationSharpen::merge_results      bitmap.widthg: {:?}", bitmap.width);
-        println!("ImageOperationSharpen::merge_results      bitmap.height: {:?}", bitmap.height);
-
-        println!("ImageOperationSharpen::merge_results      bitmap: {:?}", bitmap.pixels);
-
         bitmap
     }
 
