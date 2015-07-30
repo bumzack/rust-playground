@@ -2,6 +2,8 @@ use std::rc::Rc;
 
 use pixel_image_simple::PixelImageSimple;
 use pixel_image_simple::ImageOperationParam;
+use pixel_image_simple::RGBA8;
+
 
 use image_operation::ImageOperation;
 
@@ -12,8 +14,8 @@ pub struct ImageOperationRotate {
 
 impl ImageOperation for ImageOperationRotate {
     fn execute_op(&self ) {
-        println!("ImageOperationRotate - angle = {}, width = {}, height = {}, pixels = {:?}",
-            &self.angle, &self.bitmapdata.width, &self.bitmapdata.height, &self.bitmapdata.pixels);
+        println!("ImageOperationRotate - angle = {}, width = {}, height = {}",
+            &self.angle, &self.bitmapdata.width, &self.bitmapdata.height );
     }
 
     fn execute_op2(&self, input: &ImageOperationParam) -> ImageOperationParam {
@@ -21,16 +23,24 @@ impl ImageOperation for ImageOperationRotate {
         let height: i32 = &input.endy - &input.starty;
         let size = (width * height) as usize;
 
-        let res_bitmap: Vec<i32> = vec![0; size as usize];
+        let res_bitmap: Vec<RGBA8> = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
         let mut res = ImageOperationParam::new2(width, height, res_bitmap);
 
         // this is gonna be THE algorithm sometimes
         // here just mltiply by  2
+        let mut new_pixel: RGBA8 = RGBA8 {r:0, g: 0, b: 0, a: 0};
+        let mut old_pixel: RGBA8 = RGBA8 {r:0, g: 0, b: 0, a: 0};
+
         for x in 0..width {
             for y in 0..height {
                 let x2 = x + input.startx;
                 let y2 = y + input.starty;
-                res.bitmap.set_pixel(x, y, self.bitmapdata.get_pixel(x2, y2) + 1);
+                old_pixel = self.bitmapdata.get_pixel(x2, y2);
+                new_pixel.r = old_pixel.r + 1;
+                new_pixel.g = old_pixel.g + 1;
+                new_pixel.b = old_pixel.b + 1;
+                new_pixel.a = old_pixel.a + 1;
+                res.bitmap.set_pixel(x, y, new_pixel);
             }
         }
 
@@ -49,7 +59,7 @@ impl ImageOperation for ImageOperationRotate {
     fn prepare_op(&self) -> Vec<ImageOperationParam> {
         let mut res: Vec<ImageOperationParam> = vec![];
         // This is decided by the algorithm - how many parts to divide the bitmap into
-        let count_parts = 2;
+        let count_parts = 8;
         let part_width = &self.bitmapdata.width / count_parts;
         let part_height = &self.bitmapdata.height / count_parts;
 
@@ -84,7 +94,7 @@ impl ImageOperation for ImageOperationRotate {
     // TODO: move to trait "ImageOperation"
     fn merge_results(&self, partial_results: Vec<ImageOperationParam>) -> PixelImageSimple {
         let size = (self.bitmapdata.width * self.bitmapdata.height) as usize;
-        let res_bitmap: Vec<i32> = vec![0; size as usize];
+        let res_bitmap: Vec<RGBA8> = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
         let mut bitmap = PixelImageSimple { pixels: res_bitmap, width: self.bitmapdata.width, height: self.bitmapdata.height };
 
         for part in partial_results {
