@@ -3,6 +3,8 @@ name = "image_operations"
 version = "0.0.1"
 authors = ["bumzack"]
 
+[dependencies.lodepng]
+git = "https://github.com/pornel/lodepng-rust.git"
 
 [dependencies]
 image = "*"
