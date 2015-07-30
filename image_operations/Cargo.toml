@@ -5,6 +5,3 @@ authors = ["bumzack"]
 
 [dependencies.lodepng]
 git = "https://github.com/pornel/lodepng-rust.git"
-
-[dependencies]
-image = "*"

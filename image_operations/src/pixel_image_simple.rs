@@ -1,8 +1,6 @@
 extern crate lodepng;
-extern crate image as png_image;
 
 use std::path::Path;
-use std::fs::File;
 
 pub struct PixelImageSimple {
     pub pixels: Vec<i32>,
@@ -48,18 +46,6 @@ impl PixelImageSimple  {
         if let Err(e) = lodepng::encode_file(path, &image, self.width as usize, self.height as usize, lodepng::LCT_RGB, 8) {
             panic!("failed to write png: {:?}", e);
         }
-    }
-
-    pub fn save_png2(self, filename: &str) {
-        let path = &Path::new(filename);
-
-        let mut imgbuf = png_image::ImageBuffer::new(self.width as u32, self.height  as u32);
-        for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-            let i = self.get_pixel(x as i32, y as i32);
-            *pixel = png_image::Luma([i as u8]);
-        }
-        let ref mut fout = File::create(path).unwrap();
-        let _ = png_image::ImageLuma8(imgbuf).save(fout, png_image::PNG);
     }
 }
 

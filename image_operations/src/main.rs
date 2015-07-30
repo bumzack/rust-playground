@@ -103,7 +103,6 @@ fn main () {
     }
 
     sinus_bitmap.save_png("sinus_lode.png");
-    sinus_bitmap2.save_png2("sinus_image.png");
 }
 
 #[test]
