@@ -29,8 +29,6 @@ fn main () {
 
     let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
 
-    //println!("MAIN - INPUT pixels: {:?}", & bitmap.pixels);
-
     let sharpen = ImageOperationSharpen { val: 34, bitmapdata: bitmap.clone() };
     let rotate = ImageOperationRotate { angle: 13.32, bitmapdata: bitmap };
 
@@ -46,7 +44,6 @@ fn main () {
     let mut finished_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
 
     let bla = image.image_operations.len();
-    println!("MAIN      bla = image.image_operations.len(): {:?}", bla);
 
     for i in 0..bla as i32 {
         let mut input: Vec<ImageOperationParam> = vec![];
@@ -56,7 +53,6 @@ fn main () {
         let mut tmp_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
 
         let idx = i as usize;
-        println!("LOOP      idx =  {:?}", idx);
 
         input = image.image_operations[idx].prepare_op();
 
@@ -66,39 +62,28 @@ fn main () {
         }
 
         let tmp_bitmap = image.image_operations[idx].merge_results(output);
-        //println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
-        //println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
-        //println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
 
         if idx < image.image_operations.len()-1 {
-            //println!("LOOP    setting input bitmap  idx =  {:?}", idx);
             image.image_operations[idx + 1].set_input_bitmap(tmp_bitmap);
         } else {
             finished_bitmap = tmp_bitmap;
         }
     }
-    //println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
-
 
     // create a sin wave
     width = 200;
     height = 100;
     size = width * height;
     bitmapdata = vec![0; size as usize];
-    let bitmapdata2 = vec![0; size as usize];
     let mut sinus_bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
-    let mut sinus_bitmap2 = PixelImageSimple { pixels: bitmapdata2, width: width, height: height };
 
     let mut val: f64;
     let mut a: f64 = 1.0 * 3.14159 / 180.0;
-    // let mut a: f64 = 1.0;
     for x in 0..width {
         val = a* (x as f64);
-        //println!("SINUS x: {}, val: {}, val.sin(): {}", x, val, val.sin()*255.0);
-        let mut bla2: i32 = (val.sin()*250.0).abs() as i32;
+        let mut bla2: i32 = (val.sin()*255.0).abs() as i32;
         for y in 0..height {
             sinus_bitmap.set_pixel(x, y, bla2);
-            sinus_bitmap2.set_pixel(x, y, bla2);
         }
     }
 
@@ -119,8 +104,6 @@ fn test_rotate_sharpen_filter() {
 
     let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
 
-    //println!("MAIN - INPUT pixels: {:?}", & bitmap.pixels);
-
     let sharpen = ImageOperationSharpen { val: 34, bitmapdata: bitmap.clone() };
     let rotate = ImageOperationRotate { angle: 13.32, bitmapdata: bitmap };
 
@@ -136,7 +119,6 @@ fn test_rotate_sharpen_filter() {
     let mut finished_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
 
     let bla = image.image_operations.len();
-    println!("MAIN      bla = image.image_operations.len(): {:?}", bla);
 
     for i in 0..bla as i32 {
         let mut input: Vec<ImageOperationParam> = vec![];
@@ -146,8 +128,6 @@ fn test_rotate_sharpen_filter() {
         let mut tmp_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
 
         let idx = i as usize;
-        println!("LOOP      idx =  {:?}", idx);
-
         input = image.image_operations[idx].prepare_op();
 
         for param in &input  {
@@ -156,27 +136,20 @@ fn test_rotate_sharpen_filter() {
         }
 
         let tmp_bitmap = image.image_operations[idx].merge_results(output);
-        println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
-        println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
-        println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
 
         if idx < image.image_operations.len()-1 {
-            println!("LOOP    setting input bitmap  idx =  {:?}", idx);
             image.image_operations[idx + 1].set_input_bitmap(tmp_bitmap);
         } else {
             finished_bitmap = tmp_bitmap;
         }
     }
-    println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
 
     let mut expected_result: Vec<i32> = vec![0; size as usize];
     for i in 0..size as usize {
         expected_result[i] = ((i*2)+1) as i32;
     }
     assert_eq!(expected_result, finished_bitmap.pixels);
-
 }
-
 
 #[test]
 fn test_sharpen_rotate_sharpen_filter() {
@@ -186,13 +159,11 @@ fn test_sharpen_rotate_sharpen_filter() {
 
     let mut bitmapdata: Vec<i32> = vec![0; size as usize];
 
-     for i in 0..size as usize {
+    for i in 0..size as usize {
         bitmapdata[i] = i as i32;
-     }
+    }
 
     let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
-
-    //println!("MAIN - INPUT pixels: {:?}", & bitmap.pixels);
 
     let sharpen = ImageOperationSharpen { val: 34, bitmapdata: bitmap.clone() };
     let sharpen2 = ImageOperationSharpen { val: 31, bitmapdata: bitmap.clone() };
@@ -212,7 +183,6 @@ fn test_sharpen_rotate_sharpen_filter() {
     let mut finished_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
 
     let bla = image.image_operations.len();
-    println!("MAIN      bla = image.image_operations.len(): {:?}", bla);
 
     for i in 0..bla as i32 {
         let mut input: Vec<ImageOperationParam> = vec![];
@@ -222,7 +192,6 @@ fn test_sharpen_rotate_sharpen_filter() {
         let mut tmp_bitmap = PixelImageSimple { pixels: bitmapdata, width: 0, height: 0 };
 
         let idx = i as usize;
-        println!("LOOP      idx =  {:?}", idx);
 
         input = image.image_operations[idx].prepare_op();
 
@@ -232,19 +201,13 @@ fn test_sharpen_rotate_sharpen_filter() {
         }
 
         let tmp_bitmap = image.image_operations[idx].merge_results(output);
-        println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
-        println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
-        println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
 
         if idx < image.image_operations.len()-1 {
-            println!("LOOP    setting input bitmap  idx =  {:?}", idx);
             image.image_operations[idx + 1].set_input_bitmap(tmp_bitmap);
         } else {
             finished_bitmap = tmp_bitmap;
         }
     }
-    println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
-
     let mut expected_result: Vec<i32> = vec![0; size as usize];
     for i in 0..size as usize {
         expected_result[i] = (((i*2)+1)*2) as i32;
@@ -270,7 +233,6 @@ fn test_rotate_filter() {
     let box_rotate = Box::new(rotate);
     let mut image = Image::new();
     image.add_op(box_rotate);
-    println!("execute_op()");
     for imageops in image.image_operations.iter() {
         imageops.execute_op();
     }
@@ -312,7 +274,6 @@ fn test_sharpen_filter() {
     let box_sharpen = Box::new(sharpen);
     let mut image = Image::new();
     image.add_op(box_sharpen);
-    println!("execute_op()");
     for imageops in image.image_operations.iter() {
         imageops.execute_op();
     }
