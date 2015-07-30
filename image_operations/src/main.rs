@@ -1,12 +1,6 @@
 use std::rc::Rc;
-use std::path::Path;
-use std::fs::File;
 
 use std::f64;
-
-extern crate image as png_image;
-
-
 
 use pixel_image_simple::PixelImageSimple;
 use pixel_image_simple::ImageOperationParam;
@@ -72,51 +66,44 @@ fn main () {
         }
 
         let tmp_bitmap = image.image_operations[idx].merge_results(output);
-        println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
-        println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
-        println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
+        //println!("LOOP    idx: {},    tmp_bitmap.width: {:?}", idx, tmp_bitmap.width);
+        //println!("LOOP    idx: {},    tmp_bitmap.height: {:?}", idx, tmp_bitmap.height);
+        //println!("LOOP    idx: {},    tmp_bitmap: {:?}", idx, tmp_bitmap.pixels);
 
         if idx < image.image_operations.len()-1 {
-            println!("LOOP    setting input bitmap  idx =  {:?}", idx);
+            //println!("LOOP    setting input bitmap  idx =  {:?}", idx);
             image.image_operations[idx + 1].set_input_bitmap(tmp_bitmap);
         } else {
             finished_bitmap = tmp_bitmap;
         }
     }
-    println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
+    //println!("OUTPUT     finished_bitmap.pixels: {:?}", finished_bitmap.pixels);
 
 
     // create a sin wave
-    width = 2000;
-    height = 1000;
+    width = 200;
+    height = 100;
     size = width * height;
     bitmapdata = vec![0; size as usize];
-    let mut bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+    let bitmapdata2 = vec![0; size as usize];
+    let mut sinus_bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+    let mut sinus_bitmap2 = PixelImageSimple { pixels: bitmapdata2, width: width, height: height };
 
     let mut val: f64;
     let mut a: f64 = 1.0 * 3.14159 / 180.0;
     // let mut a: f64 = 1.0;
     for x in 0..width {
         val = a* (x as f64);
-        println!("SINUS x: {}, val: {}, val.sin(): {}", x, val, val.sin()*255.0);
+        //println!("SINUS x: {}, val: {}, val.sin(): {}", x, val, val.sin()*255.0);
         let mut bla2: i32 = (val.sin()*250.0).abs() as i32;
         for y in 0..height {
-            bitmap.set_pixel(x, y, bla2);
+            sinus_bitmap.set_pixel(x, y, bla2);
+            sinus_bitmap2.set_pixel(x, y, bla2);
         }
     }
 
-    for x in 0..width {
-        println!("SINUS      bitmap.get_pixel(): {:?}", bitmap.get_pixel(x, 0));
-    }
-
-    let mut imgbuf = png_image::ImageBuffer::new(width as u32, height  as u32);
-
-    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-        let i = bitmap.get_pixel(x as i32, y as i32);
-        *pixel = png_image::Luma([i as u8]);
-   }
-   let ref mut fout = File::create(&Path::new("sinus.png")).unwrap();
-   let _ = png_image::ImageLuma8(imgbuf).save(fout, png_image::PNG);
+    sinus_bitmap.save_png("sinus_lode.png");
+    sinus_bitmap2.save_png2("sinus_image.png");
 }
 
 #[test]
