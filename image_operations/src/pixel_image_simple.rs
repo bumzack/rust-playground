@@ -19,6 +19,14 @@ pub struct PixelImageSimple {
     pub height: i32,
 }
 
+fn modulo(a: i32, b: i32) -> i32 {
+    let dummy = (a as f64 / b as f64).floor() as i32;
+    //println!("{} /  {} = {}", a, b, dummy);
+    let bla = a - dummy * b;
+    //println!("{} -  {} * {} = {}", a, b, dummy, bla);
+    bla
+}
+
 impl PixelImageSimple  {
     pub fn new() -> PixelImageSimple {
         PixelImageSimple { pixels: vec![], width: 0, height:0 }
@@ -68,9 +76,9 @@ impl PixelImageSimple  {
 
     pub fn create_fractal(&mut self, palette: PaletteRainbowColorsRGBA8) {
         // pixel size of the fractal
-        let topleftx: f64 = -2.0;
+        let topleftx: f64 = -1.5;
         let toplefty: f64 = 1.0;
-        let bottomrightx: f64 = 1.0;
+        let bottomrightx: f64 = 0.8;
         let bottomrighty: f64 = -1.0;
 
         let incrementx = (topleftx.abs() + bottomrightx.abs()) / self.width as f64;
@@ -81,8 +89,8 @@ impl PixelImageSimple  {
         //let mut real = 0.0;
         //let mut imag = 0.0;
         let mut count_iteration = 0;
-        let max_iteration = 16348;
-        let max_distance = 15.0;
+        let max_iteration = 500;
+        let max_distance = 5.0;
         let mut distance = 0.0;
 
         let mut pixel: RGBA8 = RGBA8 {r:0, g: 0, b: 0, a: 0};
@@ -125,7 +133,7 @@ impl PixelImageSimple  {
                     a = real;
                     b = imag;
                 }
-                idx_palette = count_iteration / 256;
+                idx_palette = modulo(count_iteration, count_colors as i32) as usize;
 
                 //println!("create_fractal:  count_iteration: {}, count_colors: {}, distance {},  max_distance: {},  idx_palette: {}, dummy: {}",
                 //   count_iteration, count_colors, distance, max_distance*max_distance, idx_palette, dummy);
