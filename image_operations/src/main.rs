@@ -132,41 +132,8 @@ fn fractal () {
              //  x, y, pixel.r, pixel.g, pixel.b, pixel.a);
         }
     }
-    factal_bitmap.save_png("fractal2.png");
+    factal_bitmap.save_png("fractal4.png");
 }
-
-fn fractal2 () {
-    let palette = PaletteRainbowColorsRGBA8::new();
-
-    let width: i32 = (10 * palette.palette.len()) as i32;
-    let height: i32 = 20 ;
-    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
-    let mut test = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
-    let mut pixel = RGBA8 {r:0, g: 0, b: 0, a: 0};
-    let mut x: i32 = 0;
-
-    for i in 0..palette.palette.len() {
-        pixel = palette.palette[i];
-        //println!("pixel  r: {}, g: {}, b: {}, a: {}",
-        //    pixel.r, pixel.g, pixel.b, pixel.a);
-        for j in 0..10 {
-            x = (i as i32) * 10 + (j as i32);
-            for y in 0..20 {
-                test.set_pixel(x, y, pixel);
-            }
-        }
-    }
-
-    for x in 0..width {
-        for y in 0..height {
-            pixel = test.get_pixel(x, y);
-            //println!("pixel x: {}, y: {}         r: {}, g: {}, b: {}, a: {}",
-            //   x, y, pixel.r, pixel.g, pixel.b, pixel.a);
-        }
-    }
-    test.save_png("test2.png");
-}
-
 
 
 fn main () {
