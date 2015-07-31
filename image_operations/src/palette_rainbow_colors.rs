@@ -28,45 +28,62 @@ impl PaletteRGBA8 for PaletteRainbowColorsRGBA8 {
         palette.palette.push(RGBA8 {r: 0, g: 255, b: 0, a: 255});
         */
 
+        /*
+        let count_colors = 255;
+        let increment = 1;
         let mut val = 255;
-        for i in 0..64 {
+
+        for i in 0..count_colors {
+            palette.palette.push(RGBA8 {r: val, g: 0, b: 0, a: 255});
+            println!("PaletteRainbowColorsRGBA8   - i: {}, val: {}",
+                i, val);
+            if (val >= increment) {
+                val = val - increment;
+            } else {
+                val = 0;
+            }
+        }
+        */
+        let count_colors = 16;
+        let increment = 256 / count_colors;
+        let mut val = 255;
+        for i in 0..count_colors {
             palette.palette.push(RGBA8 {r: 255, g: 0, b: val, a: 255});
             println!("PaletteRainbowColorsRGBA8   - i: {}, val: {}",
                 i, val);
-            if (val >= 4) {
-                val = val - 4;
+            if (val >= increment) {
+                val = val - increment;
             } else {
                 val = 0;
             }
         }
         val = 255;
-        for i in 0..64 {
+        for i in 0..count_colors {
             palette.palette.push(RGBA8 {r: val, g: 0, b: 255, a: 255});
-            if (val >= 4) {
-                val = val - 4;
+            if (val >= increment) {
+                val = val - increment;
             } else {
                 val = 0;
             }
         }
         val = 0;
-        for i in 0..64 {
+        for i in 0..count_colors {
             palette.palette.push(RGBA8 {r: 0, g: val, b: 255, a: 255});
-            if (val <= 251) {
-                val = val + 4;
+            if (val <= 255-increment) {
+                val = val + increment;
             } else {
                 val = 255;
             }
         }
         val = 0;
-        for i in 0..64 {
+        for i in 0..count_colors {
             palette.palette.push(RGBA8 {r: 0, g: 255, b: val, a: 255});
-            if (val >= 4) {
-                val = val - 4;
+            if (val >= increment) {
+                val = val - increment;
             } else {
                 val = 0;
             }
         }
-         
         palette
     }
 
