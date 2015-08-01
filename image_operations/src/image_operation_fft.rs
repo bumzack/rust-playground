@@ -307,6 +307,7 @@ fn fft2D(c: &mut Vec<Complex64>, nx: i32, ny: i32, dir: i32) -> bool {
         //    println!("nx - first for  i: {}, idx: {} ", i, idx);
         }
         let a = fft(dir, m, &mut real, &mut imag);
+        println!("nx - res of fft():  {}", a);
         for i in 0..nx {
             idx = (j*nx + i) as usize;
             c[idx].re = real[i as usize];
@@ -332,6 +333,7 @@ fn fft2D(c: &mut Vec<Complex64>, nx: i32, ny: i32, dir: i32) -> bool {
             imag[j as usize ] = c[idx].im;
         }
         let res = fft(dir, m, &mut real, &mut imag);
+         println!("ny - res of fft():  {}", res);
         for j in 0..ny {
             idx = (j*nx + i) as usize;
             c[idx].re = real[j as usize];
