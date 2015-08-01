@@ -25,10 +25,49 @@ mod palette;
 mod palette_rainbow_colors;
 mod image;
 
-fn example_image() {
+
+fn fractal() {
     // create a sin wave
-    let width = 256;
-    let height = 256;
+    let width = 1024;
+    let height = 1024;
+    let size = width * height;
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+    let palette = PaletteRainbowColorsRGBA8::new();
+
+    let mut factal_bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+    factal_bitmap.create_fractal(palette);
+    factal_bitmap.save_png("fractal_fft_original.png");
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+    let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+    let mut fft = ImageOperationFFT { input_bitmapdata: bitmap, output_bitmapdata: PixelImageSimple { pixels: bitmapdata, width: width, height: height } };
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+    let fractal = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+
+    fft.set_input_bitmap(fractal);
+
+    let res_bitmap: Vec<RGBA8> = vec![];
+    let mut input = ImageOperationParam::new2(0, 0, res_bitmap.clone());
+    let mut bla = ImageOperationParam::new2(0, 0, res_bitmap);
+
+    bla = fft.execute_op2(&input);
+
+    let mut res2 = PixelImageSimple { pixels: vec![], width: 0, height: 0 };
+
+    let res2 = fft.get_output_bitmap();
+
+
+    res2.save_png("fractal_fft_transformed.png");
+}
+
+fn sinus_wave_fft() {
+    // create a sin wave
+    let width = 1024;
+    let height = 1024;
     let size = width * height;
     let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
 
@@ -58,6 +97,8 @@ fn example_image() {
     let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
     let mut fft = ImageOperationFFT { input_bitmapdata: bitmap.clone(), output_bitmapdata: PixelImageSimple { pixels: bitmapdata, width: width, height: height } };
 
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+
     fft.set_input_bitmap(sinus_bitmap);
 
     let res_bitmap: Vec<RGBA8> = vec![];
@@ -66,14 +107,21 @@ fn example_image() {
 
     bla = fft.execute_op2(&input);
 
-
     let mut res2 = PixelImageSimple { pixels: vec![], width: 0, height: 0 };
 
     let res2 = fft.get_output_bitmap();
+
+    for y in 0..res2.height {
+        for x in 0..res2.width {
+            let pixel = res2.get_pixel(x, y);
+            // println!("pixel  {}/{} = r: {}, g: {}, b: {}, a: {}", x, y, pixel.r, pixel.g,  pixel.b,  pixel.a);
+        }
+    }
 
     res2.save_png("sinus_fft_transformed.png");
 }
 
 fn main () {
-    example_image();
+    // sinus_wave_fft();
+    fractal();
 }
