@@ -25,11 +25,113 @@ mod palette;
 mod palette_rainbow_colors;
 mod image;
 
+fn create_stripes() {
+    let width = 256;
+    let height = 256;
+    let size = width * height;
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+
+    let mut stripes_bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+    stripes_bitmap.create_stripes(2);
+    stripes_bitmap.save_png("stripes_original.png");
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+    let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+    let mut fft = ImageOperationFFT { input_bitmapdata: bitmap, output_bitmapdata: PixelImageSimple { pixels: bitmapdata, width: width, height: height } };
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+
+    fft.set_input_bitmap(stripes_bitmap);
+
+    let res_bitmap: Vec<RGBA8> = vec![];
+    let mut input = ImageOperationParam::new2(0, 0, res_bitmap.clone());
+    let mut bla = ImageOperationParam::new2(0, 0, res_bitmap);
+
+    bla = fft.execute_op2(&input);
+
+    let mut res2 = PixelImageSimple { pixels: vec![], width: 0, height: 0 };
+
+    let res2 = fft.get_output_bitmap();
+
+    res2.save_png("stripes_transformed.png");
+}
+
+fn white_square() {
+    let width = 256;
+    let height = 256;
+    let size = width * height;
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+
+    let mut square_bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+    square_bitmap.create_white_square();
+    square_bitmap.save_png("square_original.png");
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+    let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+    let mut fft = ImageOperationFFT { input_bitmapdata: bitmap, output_bitmapdata: PixelImageSimple { pixels: bitmapdata, width: width, height: height } };
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+    let fractal = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+
+    fft.set_input_bitmap(square_bitmap);
+
+    let res_bitmap: Vec<RGBA8> = vec![];
+    let mut input = ImageOperationParam::new2(0, 0, res_bitmap.clone());
+    let mut bla = ImageOperationParam::new2(0, 0, res_bitmap);
+
+    bla = fft.execute_op2(&input);
+
+    let mut res2 = PixelImageSimple { pixels: vec![], width: 0, height: 0 };
+
+    let res2 = fft.get_output_bitmap();
+
+    res2.save_png("square_square_transformed.png");
+}
+
+
+fn white_rectangle() {
+    let width = 256;
+    let height = 256;
+    let size = width * height;
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+
+    let mut rect_bitmap = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
+    rect_bitmap.create_white_rectangle();
+    rect_bitmap.save_png("rect_original.png");
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
+    let bitmap = Rc::new(PixelImageSimple { pixels: bitmapdata, width: width, height: height });
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+    let mut fft = ImageOperationFFT { input_bitmapdata: bitmap, output_bitmapdata: PixelImageSimple { pixels: bitmapdata, width: width, height: height } };
+
+    let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
+
+    fft.set_input_bitmap(rect_bitmap);
+
+    let res_bitmap: Vec<RGBA8> = vec![];
+    let mut input = ImageOperationParam::new2(0, 0, res_bitmap.clone());
+    let mut bla = ImageOperationParam::new2(0, 0, res_bitmap);
+
+    bla = fft.execute_op2(&input);
+
+    let mut res2 = PixelImageSimple { pixels: vec![], width: 0, height: 0 };
+
+    let res2 = fft.get_output_bitmap();
+
+    res2.save_png("rect_transformed.png");
+}
 
 fn fractal() {
-    // create a sin wave
-    let width = 1024;
-    let height = 1024;
+    let width = 256;
+    let height = 256;
     let size = width * height;
 
     let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; (width*height) as usize];
@@ -48,7 +150,7 @@ fn fractal() {
     let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
     let fractal = PixelImageSimple { pixels: bitmapdata, width: width, height: height };
 
-    fft.set_input_bitmap(fractal);
+    fft.set_input_bitmap(factal_bitmap);
 
     let res_bitmap: Vec<RGBA8> = vec![];
     let mut input = ImageOperationParam::new2(0, 0, res_bitmap.clone());
@@ -66,8 +168,8 @@ fn fractal() {
 
 fn sinus_wave_fft() {
     // create a sin wave
-    let width = 1024;
-    let height = 1024;
+    let width = 256;
+    let height = 256;
     let size = width * height;
     let bitmapdata = vec![RGBA8 {r:0, g: 0, b: 0, a: 0}; size as usize];
 
@@ -122,6 +224,9 @@ fn sinus_wave_fft() {
 }
 
 fn main () {
-    // sinus_wave_fft();
-    fractal();
+    //sinus_wave_fft();
+    //fractal();
+    //white_square();
+    // create_stripes();
+    white_rectangle();
 }
