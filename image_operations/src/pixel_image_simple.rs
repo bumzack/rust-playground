@@ -42,7 +42,7 @@ impl PixelImageSimple  {
         self.pixels[idx] = val;
     }
 
-    pub fn save_png(self, filename: &str) {
+    pub fn save_png(&self, filename: &str) {
         let path = &Path::new(filename);
 
         let mut image: Vec<u8> = vec![0; ((self.width * self.height)*3) as usize];
