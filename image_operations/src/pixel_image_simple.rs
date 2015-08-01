@@ -147,6 +147,67 @@ impl PixelImageSimple  {
             }
         }
     }
+
+    pub fn create_white_square(&mut self) {
+        // pixel size of the fractal
+        for y in 0..self.height {
+            for x in 0..self.width  {
+                let pixel = RGBA8 {r: 0, g: 0, b: 0, a: 255 };
+                self.set_pixel(x, y, pixel);
+            }
+        }
+
+        let square_width = 40;
+        let startx = self.width / 2 - square_width / 2;
+        let starty = self.height / 2 - square_width / 2;
+
+        for y in starty..(starty + square_width) {
+            for x in startx..(startx + square_width) {
+                let pixel = RGBA8 {r: 255, g: 255, b: 255, a: 255 };
+                self.set_pixel(x, y, pixel);
+            }
+        }
+    }
+
+    pub fn create_white_rectangle(&mut self) {
+        for y in 0..self.height {
+            for x in 0..self.width  {
+                let pixel = RGBA8 {r: 0, g: 0, b: 0, a: 255 };
+                self.set_pixel(x, y, pixel);
+            }
+        }
+
+        let square_width = 80;
+        let square_height = 10;
+
+        let startx = self.width / 2 - square_width / 2;
+        let starty = self.height / 2 - square_height / 2;
+
+        for y in starty..(starty + square_height) {
+            for x in startx..(startx + square_width) {
+                let pixel = RGBA8 {r: 255, g: 255, b: 255, a: 255 };
+                self.set_pixel(x, y, pixel);
+            }
+        }
+    }
+
+    pub fn create_stripes(&mut self, stripe_width: i32) {
+        // pixel size of the fractal
+        for y in 0..self.height {
+            for x in 0..self.width  {
+                let pixel = RGBA8 {r: 0, g: 0, b: 0, a: 255 };
+                self.set_pixel(x, y, pixel);
+            }
+        }
+
+       for x in (0..self.width).step_by(stripe_width) {
+            println!("create_stripes: x = {}", x);
+            for y in 0..self.height {
+                let pixel = RGBA8 {r: 255, g: 255, b: 255, a: 255 };
+                self.set_pixel(x, y, pixel);
+            }
+        }
+    }
 }
 
 pub struct ImageOperationParam {
