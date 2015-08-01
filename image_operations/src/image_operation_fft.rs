@@ -1,3 +1,5 @@
+// http://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
+
 use num::complex::Complex64;
 use std::rc::Rc;
 
@@ -23,14 +25,17 @@ impl ImageOperation for ImageOperationFFT {
         let mut res = ImageOperationParam::new2(0, 0, res_bitmap);
 
         let mut complex_bitmap: Vec<Complex64> = vec![];
-        let mut pixel = RGBA8 {r:0, g: 0, b: 0, a: 0};
+        let mut amp: Vec<f64> = vec![];
+        // let mut phase: Vec<f64> = vec![];
+
+        let mut pixel = RGBA8 {r: 0, g: 0, b: 0, a: 0};
 
         for y in 0..self.input_bitmapdata.height {
             for x in 0..self.input_bitmapdata.width {
                 pixel  = self.input_bitmapdata.get_pixel(x, y);
                 // println!("pixel fft input  {}/{} = r: {}, g: {}, b: {}, a: {}", x, y, pixel.r, pixel.g,  pixel.b,  pixel.a);
 
-                complex_bitmap.push(Complex64{ re: pixel.g as f64, im: 0.0});
+                complex_bitmap.push(Complex64{ re: pixel.b as f64, im: 0.0});
             }
         }
 
@@ -43,26 +48,57 @@ impl ImageOperation for ImageOperationFFT {
         let mut idx = 0;
         //println!("ImageOperationFFT::input_bitmapdata   ->  self.output_bitmapdata.width : {},  self.output_bitmapdata.height : {}",  self.output_bitmapdata.width , self.output_bitmapdata.height );
 
+        let mut amp_max = 0.0;
+
         for y in 0..self.output_bitmapdata.height {
             for x in 0..self.output_bitmapdata.width {
                 idx = y * self.output_bitmapdata.width + x;
-                let mut val = (complex_bitmap[idx as usize].re * complex_bitmap[idx as usize].re  +
-                             complex_bitmap[idx as usize].im * complex_bitmap[idx as usize].im).sqrt();
-                if val > 254.0 {
-                    val = 255.0;
+                let val = (complex_bitmap[idx as usize].re * complex_bitmap[idx as usize].re  +
+                             complex_bitmap[idx as usize].im * complex_bitmap[idx as usize].im).sqrt().abs();
+                amp.push(val);
+
+                //let val = (complex_bitmap[idx as usize].im / complex_bitmap[idx as usize].re)  +
+                //              complex_bitmap[idx as usize].im * complex_bitmap[idx as usize].im).sqrt().abs();
+
+                //if val > 0.0 {
+                    println!("ImageOperationFFT::input_bitmapdata   {}/{}: val =  {}", x, y, val);
+                //}
+                if val > amp_max {
+                    amp_max = val;
+                    println!("ImageOperationFFT::input_bitmapdata  setting amp_max to  {} @ {}/{}", val, x, y);
                 }
-                let val2 = val as u8;
-
-                // let val = ((complex_bitmap[idx as usize].re).abs()  as u8);
-
-                if val2 != 0 {
-                    println!("fft result {}/{} =   {}   idx: {} ", x, y, val, idx);
-                }
-
-                let pixel = RGBA8 {r:val2, g: val2, b: val2, a: 255};
-                self.output_bitmapdata.set_pixel(x, y, pixel);
             }
         }
+
+        let c = 255.0 / (1.0 + amp_max).ln();
+
+        println!("ImageOperationFFT::input_bitmapdata   max amplitude: {}", amp_max);
+        println!("ImageOperationFFT::input_bitmapdata   c: {}", c);
+        // println!("ImageOperationFFT::input_bitmapdata   phase: {:?}", phase);
+
+        let mut pixel = RGBA8 {r: 0, g: 0, b: 0, a: 255};
+
+        for y in 0..self.output_bitmapdata.height {
+            for x in 0..self.output_bitmapdata.width {
+                idx = y * self.output_bitmapdata.width + x;
+                //let val = (complex_bitmap[idx as usize].re * complex_bitmap[idx as usize].re  +
+                //             complex_bitmap[idx as usize].im * complex_bitmap[idx as usize].im).sqrt().abs();
+                let q = c * (1.0 + amp[idx as usize]).ln();
+                let q8 = q as u8;
+                if amp[idx as usize] > 0.0 {
+                    //println!("ImageOperationFFT::input_bitmapdata   val: {}, q: {}, q8: {}    @ x= {}, y= {}", amp[idx], q, q8, x,y);
+                }
+
+                //if q8 > 0 {
+                    pixel = RGBA8 {r:q8, g: q8, b: q8, a: 255};
+                //} else {
+                //    pixel = RGBA8 {r:255, g: 255, b: 255, a: 255};
+                //}
+                 self.output_bitmapdata.set_pixel(x, y, pixel);
+            }
+        }
+        println!("ImageOperationFFT::input_bitmapdata   max amplitude: {}", amp_max);
+        println!("ImageOperationFFT::input_bitmapdata   c: {}", c);
 
         res.startx = 0;
         res.starty = 0;
