@@ -35,8 +35,6 @@ impl PaletteRGBA8 for PaletteRainbowColorsRGBA8 {
 
         for i in 0..count_colors {
             palette.palette.push(RGBA8 {r: val, g: 0, b: 0, a: 255});
-            println!("PaletteRainbowColorsRGBA8   - i: {}, val: {}",
-                i, val);
             if (val >= increment) {
                 val = val - increment;
             } else {
@@ -49,8 +47,6 @@ impl PaletteRGBA8 for PaletteRainbowColorsRGBA8 {
         let mut val = 255;
         for i in 0..count_colors {
             palette.palette.push(RGBA8 {r: 255, g: 0, b: val, a: 255});
-            println!("PaletteRainbowColorsRGBA8   - i: {}, val: {}",
-                i, val);
             if (val >= increment) {
                 val = val - increment;
             } else {
