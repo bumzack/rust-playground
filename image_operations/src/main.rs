@@ -5,6 +5,7 @@ extern crate num;
 use std::rc::Rc;
 
 use std::f64;
+use std::f64::consts;
 
 use pixel_image_simple::PixelImageSimple;
 use pixel_image_simple::ImageOperationParam;
