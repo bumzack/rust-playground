@@ -25,33 +25,44 @@ impl ImageOperation for ImageOperationFFT {
         let mut complex_bitmap: Vec<Complex64> = vec![];
         let mut pixel = RGBA8 {r:0, g: 0, b: 0, a: 0};
 
-        for x in 0..self.input_bitmapdata.width {
-            for y in 0..self.input_bitmapdata.height {
+        for y in 0..self.input_bitmapdata.height {
+            for x in 0..self.input_bitmapdata.width {
                 pixel  = self.input_bitmapdata.get_pixel(x, y);
-                println!("pixel fft input  {}/{} = r: {}, g: {}, b: {}, a: {}", x, y, pixel.r, pixel.g,  pixel.b,  pixel.a);
+                // println!("pixel fft input  {}/{} = r: {}, g: {}, b: {}, a: {}", x, y, pixel.r, pixel.g,  pixel.b,  pixel.a);
 
-                complex_bitmap.push(Complex64{ re: pixel.r as f64, im: 0.0});
+                complex_bitmap.push(Complex64{ re: pixel.g as f64, im: 0.0});
             }
         }
 
         let fft_res = fft2D(&mut complex_bitmap, self.input_bitmapdata.width, self.input_bitmapdata.height, 1);
-        println!("ImageOperationFFT::execute_op2   ->  res: {}", fft_res);
-        println!("ImageOperationFFT::complex_bitmap   ->  res: {:?}", complex_bitmap);
-        println!("ImageOperationFFT::complex_bitmap   ->  self.input_bitmapdata.width: {}, self.input_bitmapdata.height: {}", self.input_bitmapdata.width, self.input_bitmapdata.height);
+        //println!("ImageOperationFFT::execute_op2   ->  res: {}", fft_res);
+        //println!("ImageOperationFFT::complex_bitmap   ->  res: {:?}", complex_bitmap);
+        // println!("ImageOperationFFT::complex_bitmap   ->  self.input_bitmapdata.width: {}, self.input_bitmapdata.height: {}", self.input_bitmapdata.width, self.input_bitmapdata.height);
         // println!("ImageOperationFFT::input_bitmapdata   ->  self.input_bitmapdata.pixels: {:?}",  self.input_bitmapdata.pixels);
 
         let mut idx = 0;
+        //println!("ImageOperationFFT::input_bitmapdata   ->  self.output_bitmapdata.width : {},  self.output_bitmapdata.height : {}",  self.output_bitmapdata.width , self.output_bitmapdata.height );
 
-        for x in 0..self.output_bitmapdata.width {
-            for y in 0..self.output_bitmapdata.height {
+        for y in 0..self.output_bitmapdata.height {
+            for x in 0..self.output_bitmapdata.width {
                 idx = y * self.output_bitmapdata.width + x;
-                let val = complex_bitmap[idx as usize].re as u8;
-                //println!("fft result {}/{} =   {} ", x, y, complex_bitmap[idx as usize]);
-                let pixel = RGBA8 {r:val, g: val, b: val, a: 255};
+                let mut val = (complex_bitmap[idx as usize].re * complex_bitmap[idx as usize].re  +
+                             complex_bitmap[idx as usize].im * complex_bitmap[idx as usize].im).sqrt();
+                if val > 254.0 {
+                    val = 255.0;
+                }
+                let val2 = val as u8;
+
+                // let val = ((complex_bitmap[idx as usize].re).abs()  as u8);
+
+                if val2 != 0 {
+                    println!("fft result {}/{} =   {}   idx: {} ", x, y, val, idx);
+                }
+
+                let pixel = RGBA8 {r:val2, g: val2, b: val2, a: 255};
                 self.output_bitmapdata.set_pixel(x, y, pixel);
             }
         }
-
 
         res.startx = 0;
         res.starty = 0;
@@ -273,7 +284,7 @@ fn fft2D(c: &mut Vec<Complex64>, nx: i32, ny: i32, dir: i32) -> bool {
 
     /* Transform the columns */
     let (m, twopm, res) = power_of_2(ny);
-    println!("ny     m: {}, twopm: {}, res: {}", m, twopm, res);
+    // println!("ny     m: {}, twopm: {}, res: {}", m, twopm, res);
     if !res || twopm != ny {
         return false;
     }
